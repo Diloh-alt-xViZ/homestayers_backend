@@ -242,8 +242,8 @@ public class BookingServiceImpl implements BookingService {
         booking.setNumberOfGuests(request.getNumberOfGuests());
         booking.setPrice(BigDecimal.valueOf(request.getPrice()));
         Booking bookingEntity =        bookingRepository.save(booking);
-//String message = String.format("Booking request for %s at %s from %s to %s", bookingEntity.getGuest().getUsername(),room.getRoomTitle(),booking.getStartDate(),booking.getEndDate());
-       // twilioService.sendBookingNotification(property.getHost().getUser().getPhoneNumber(),message,booking.getGuest().getPhoneNumber());
+        String message = String.format("Booking request for %s at %s from %s to %s", bookingEntity.getGuest().getUsername(),booking.getRoom().getRoomTitle(),booking.getStartDate(),booking.getEndDate());
+       twilioService.sendBookingNotification(property.getHost().getUser().getPhoneNumber(),message,booking.getGuest().getPhoneNumber());
         return BookingResponseDto.builder().bookingId(bookingEntity.getId()).propertyName(bookingEntity.getProperty().getTitle()).build();
     }
 
@@ -277,9 +277,9 @@ public class BookingServiceImpl implements BookingService {
         bookingEntity.setHost(property.getHost());
         bookingEntity.setDateUpdated(new Date(System.currentTimeMillis()));
         Booking savedBooking  = bookingRepository.save(bookingEntity);
-//        String message = String.format("Booking request for %s at %s from %s to %s", guest.getUsername(),property.getTitle(),booking.getStartDate(),booking.getEndDate());
-  //      System.out.println();
-    //    twilioService.sendBookingNotification(property.getHost().getUser().getPhoneNumber(),message,guest.getPhoneNumber());
+         String message = String.format("Booking request for %s at %s from %s to %s", guest.getUsername(),property.getTitle(),booking.getStartDate(),booking.getEndDate());
+          System.out.println();
+        twilioService.sendBookingNotification(property.getHost().getUser().getPhoneNumber(),message,guest.getPhoneNumber());
 
 
 
