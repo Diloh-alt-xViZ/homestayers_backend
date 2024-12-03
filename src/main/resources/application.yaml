@@ -53,9 +53,9 @@ spring:
     name: homestayersbackend
   datasource:
     username: postgres.kmtrtjnbmayaclorroci
-    password: Gre@test26
+    password: c87bqIlAFe2PmEJN
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://postgres.kmtrtjnbmayaclorroci:Gre@test26@aws-0-eu-central-1.pooler.supabase.com:6543/postgres?prepareThreshold=0
+    url: jdbc:postgresql://aws-0-eu-central-1.pooler.supabase.com:6543/postgres?prepareThreshold=0
   jpa:
     hibernate:
       ddl-auto: update
