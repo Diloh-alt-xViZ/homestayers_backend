@@ -24,7 +24,7 @@ public class TwilioServiceImpl implements TwilioService {
     private final UserRepository userRepository;
     private final PhoneVerificationRepository verificationRepository;
     private final TwilioConfig twilioConfig;
-    private static final String MESSAGINGSERVICESID = "MGc586bbbe21b7b2c349fae6f12408e57c";
+    private static final String MESSAGINGSERVICESID = "MG3b661a52e30568105397c695acc770d8";
 
     @Override
     public boolean verifyCode(String phoneNumber) {
@@ -39,7 +39,7 @@ public class TwilioServiceImpl implements TwilioService {
         String message = "Dear Customer, your verification code is "+ otp+", valid for 5 minutes.";
         String formattedNumber = PhoneNumberUtils.formatToE164(phoneNumber,"");
         com.twilio.type.PhoneNumber twilioPhoneNumber = new com.twilio.type.PhoneNumber(formattedNumber);
-        Message.creator(twilioPhoneNumber,twilioConfig.getMessagingServiceSID(), message).create();
+        Message.creator(twilioPhoneNumber,"MG3b661a52e30568105397c695acc770d8", message).create();
         return new OtpResponse(otp,formattedNumber);
     }
     private String generateOtp() {
@@ -54,19 +54,19 @@ public class TwilioServiceImpl implements TwilioService {
 
         com.twilio.type.PhoneNumber guestPhone = new com.twilio.type.PhoneNumber(guestPhoneNumber.getFullNumber());
         com.twilio.type.PhoneNumber hostPhone = new com.twilio.type.PhoneNumber(hostPhoneNumber.getFullNumber());
-        Message.creator(hostPhone,twilioConfig.getMessagingServiceSID(),message).create();
-        Message.creator(guestPhone,twilioConfig.getMessagingServiceSID(),message).create();
+        Message.creator(hostPhone,"MG3b661a52e30568105397c695acc770d8",message).create();
+        Message.creator(guestPhone,"MG3b661a52e30568105397c695acc770d8",message).create();
     }
 
     @Override
     public void sendBookingApprovalNotification(PhoneNumber phoneNumber, String approvalMessage) {
         com.twilio.type.PhoneNumber guestPhone = new com.twilio.type.PhoneNumber(phoneNumber.getFullNumber());
-        Message.creator(guestPhone,twilioConfig.getMessagingServiceSID(),approvalMessage).create();
+        Message.creator(guestPhone,"MG3b661a52e30568105397c695acc770d8",approvalMessage).create();
     }
 
     @Override
     public void sendBookingDenialNotification(PhoneNumber guestPhoneNumber, String message) {
         com.twilio.type.PhoneNumber guestPhone = new com.twilio.type.PhoneNumber(guestPhoneNumber.getFullNumber());
-        Message.creator(guestPhone,twilioConfig.getMessagingServiceSID(),message).create();
+        Message.creator(guestPhone,"MG3b661a52e30568105397c695acc770d8",message).create();
     }
 }
