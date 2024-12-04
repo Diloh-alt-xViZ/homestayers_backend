@@ -11,7 +11,6 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(callSuper=true)
 @Data
 @AllArgsConstructor
-@NoArgsConstructor
 @Entity
 public class Lodge extends Property{
 
