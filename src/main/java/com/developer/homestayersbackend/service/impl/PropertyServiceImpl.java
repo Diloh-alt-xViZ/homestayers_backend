@@ -1794,7 +1794,7 @@ public class PropertyServiceImpl implements PropertyService {
             //TODO Add Services
         }
         //TODO Set Location and Address
-        Address address = Address.builder().address(request.getAddress()).street(request.getAddress()).city(request.getCity()).state(request.getProvince()).country(request.getCountry()).build();
+        Address address = Address.builder().address(request.getAddress()).street(request.getAddress()).city(request.getCity()).state(request.getProvince()).country("").build();
         Location location = new Location();
         location.setAddress(address);
         property.setLocation(locationRepository.save(location));
