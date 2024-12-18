@@ -18,7 +18,10 @@ public interface PropertyService {
     CancellationPolicy addCancellationPolicy(CancellationPolicyRequest request);
 
     String editPropertyTitle(String title, Long id);
+    
+    List<LightweightProperty> getAll();
 
+    String deleteProperty(Long propertyId);
     Property verifyProperty(Long propertyId);
     String deleteCancellationPolicy(Long cancellationId);
 
