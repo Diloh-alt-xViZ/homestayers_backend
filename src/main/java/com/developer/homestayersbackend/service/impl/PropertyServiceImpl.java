@@ -262,6 +262,10 @@ public class PropertyServiceImpl implements PropertyService {
             case APPROVED -> "Approved";
             case REJECTED -> "Rejected";
         };
+
+        if(prop.getLocation()!=null){
+            listing.setLocation(prop.getLocation());
+        }
         listing.setApprovalStatus(approvalStatus);
         String listingType = switch(prop.getListingType()){
 
