@@ -128,15 +128,15 @@ public class BookingServiceImpl implements BookingService {
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(BookingNotFoundException::new);
         booking.setBookingStatus(BookingStatus.REJECTED);
         booking.setDateUpdated(new Date(System.currentTimeMillis()));
-//        Room room = booking.getRoom();
-//        String message = "";
-//        if(room != null){
-//            message = String.format("Booking request for %s at %s from %s to %s was rejected", booking.getGuest().getUsername(),room.getRoomTitle(),booking.getStartDate(),booking.getEndDate());
-//        }
-//        else{
-//            message = String.format("Booking request for %s at %s from %s to %s was rejected",booking.getGuest().getUsername(),booking.getProperty().getTitle(),booking.getStartDate(),booking.getEndDate());
-//        }
-//        twilioService.sendBookingNotification(booking.getProperty().getHost().getUser().getPhoneNumber(), message,booking.getGuest().getPhoneNumber());
+        Room room = booking.getRoom();
+        String message = "";
+       if(room != null){
+            message = String.format("Booking request for %s at %s from %s to %s was rejected", booking.getGuest().getUsername(),room.getRoomTitle(),booking.getStartDate(),booking.getEndDate());
+        }
+        else{
+            message = String.format("Booking request for %s at %s from %s to %s was rejected",booking.getGuest().getUsername(),booking.getProperty().getTitle(),booking.getStartDate(),booking.getEndDate());
+        }
+       twilioService.sendBookingNotification(booking.getProperty().getHost().getUser().getPhoneNumber(), message,booking.getGuest().getPhoneNumber());
         bookingRepository.save(booking);
         return  "Success";
     }
