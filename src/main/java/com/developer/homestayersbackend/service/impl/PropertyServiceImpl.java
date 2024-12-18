@@ -241,6 +241,50 @@ public class PropertyServiceImpl implements PropertyService {
     }
 
     @Override
+    public List<HostListingDto> getHostListingDto(Long hostId) {
+        List<Property> properties = new ArrayList<>();
+        List<HostListingDto> dto = new ArrayList<>();
+        Host host = hostRepository.findById(hostId).orElseThrow(HostNotFoundException::new);
+        properties = propertyRepository.findByHostId(host.getId());
+        dto = properties.stream().map(PropertyServiceImpl::getHostListingDto).toList();
+        return dto;
+    }
+
+    private static HostListingDto getHostListingDto(Property prop) {
+        HostListingDto listing = new HostListingDto();
+        listing.setId(prop.getId());
+        listing.setTitle(prop.getTitle());
+        listing.setStartDate(prop.getCreatedAt());
+
+        String approvalStatus = switch (prop.getApprovalStatus()){
+
+            case PENDING -> "Pending";
+            case APPROVED -> "Approved";
+            case REJECTED -> "Rejected";
+        };
+        listing.setApprovalStatus(approvalStatus);
+        String listingType = switch(prop.getListingType()){
+
+            case BED_AND_BREAKFAST -> "Bed and Breakfast";
+            case LODGE -> "Lodge";
+            case HOTEL -> "Hotel";
+            case HOME_STAYERS_EXPERIENCE -> "Homestay";
+            case RENTAL -> "Rental";
+        };
+        listing.setListingType(listingType);
+        if(prop.getPhotos()!=null){
+            List<PhotoDto> photos = new ArrayList<>();
+            for(Photo photo: prop.getPhotos()){
+                PhotoDto photoDto = new PhotoDto();
+                photoDto.setUri(photo.getUrl());
+                photos.add(photoDto);
+            }
+            listing.setPhotos(photos);
+        }
+        return listing;
+    }
+
+    @Override
     public List<CommonPropertyDto> getCommonProperties(Long hostId) {
         List<Property> properties = new ArrayList<>();
         List<CommonPropertyDto> dto = new ArrayList<>();
