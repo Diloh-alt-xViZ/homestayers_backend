@@ -24,5 +24,5 @@ public class RoomDto {
     private List<String> services;
     private List <String> amenities;
     @JsonIgnore(value = true)
-    private List<String> bookedDates;
+    private List<String> availableDates;
 }
