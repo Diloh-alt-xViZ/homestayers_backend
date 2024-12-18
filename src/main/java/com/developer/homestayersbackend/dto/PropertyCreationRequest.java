@@ -6,7 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.List;
 
 @Data
@@ -16,10 +16,13 @@ import java.util.List;
 public class PropertyCreationRequest {
     private Double longitude;
     private Double latitude;
+    @JsonIgnore
     private String country;
     private int roomCount;
     private PriceDto price;
+    @JsonIgnore
     private String rentalType;
+    @JsonIgnore
     private int guestCount;
     private String neighbourhoodDetails;
     private String gettingAround;
