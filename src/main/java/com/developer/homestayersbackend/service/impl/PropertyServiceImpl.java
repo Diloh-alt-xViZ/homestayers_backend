@@ -1313,6 +1313,8 @@ public class PropertyServiceImpl implements PropertyService {
             priceDto.setPrice(Double.parseDouble(prop.getPrice().getAmount().toString()));
             response.setPrice(priceDto);
         }
+        
+        response.setListingType(prop.getListingType().toString());
 
         return response;
     }
