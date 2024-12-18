@@ -1779,7 +1779,7 @@ public class PropertyServiceImpl implements PropertyService {
     }
 
     @Override
-    public Property createProperty(PropertyCreationRequest request) throws Exception{
+    public Property createProperty(PropertyCreationRequest request) {
         Optional<Host> host = hostRepository.findById(request.getHostId());
 
         if(host.isEmpty()){
