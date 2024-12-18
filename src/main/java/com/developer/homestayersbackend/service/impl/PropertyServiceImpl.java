@@ -392,19 +392,10 @@ public class PropertyServiceImpl implements PropertyService {
     public EditCommonDataDto updateCommonData(Long propertyId, EditCommonDataDto editCommonDataDto) {
         Property property = (Property) propertyRepository.findById(propertyId).orElseThrow(PropertyNotFoundException::new);
         System.out.println("The Property:"+ property.getTitle());
-        if(editCommonDataDto.getTitle()!=null){
-            property.setTitle(editCommonDataDto.getTitle());
-        }
-        if(editCommonDataDto.getDescription()!=null){
-            property.setDescription(editCommonDataDto.getDescription());
-        }
-        if(editCommonDataDto.getNeighbourhoodDetails()!=null){
-            property.setNeighbourhoodDetails(editCommonDataDto.getNeighbourhoodDetails());
-        }
-        if(editCommonDataDto.getGettingAround()!=null){
-            property.setGettingAroundDetails(editCommonDataDto.getGettingAround());
-        }
-        
+        property.setTitle(editCommonDataDto.getTitle());
+        property.setDescription(editCommonDataDto.getDescription());
+        property.setNeighbourhoodDetails(editCommonDataDto.getNeighbourhoodDetails());
+        property.setGettingAroundDetails(editCommonDataDto.getGettingAround());
 
         if(editCommonDataDto.getPrice()!=null) {
             PriceDto priceDto = editCommonDataDto.getPrice();
@@ -487,17 +478,17 @@ public class PropertyServiceImpl implements PropertyService {
         List<Photo> photos = null;
         //TODO:Add Pricing
         Room room = new Room();
-        if(roomRequest.getServicesList()!=null){
-            services = roomRequest.getServicesList().stream().map(servicesRepository::findById).filter(Optional::isPresent).map(Optional::get).toList();
+        if(roomRequest.getServices()!=null){
+            services = roomRequest.getServices().stream().map(servicesRepository::findByName).filter(Optional::isPresent).map(Optional::get).toList();
 
         }
     if(roomRequest.getAmenities()!=null)
         {
-            amenities = roomRequest.getAmenities().stream().map(amenityRepository::findById).filter(Optional::isPresent).map(Optional::get).toList();
+            amenities = roomRequest.getAmenities().stream().map(amenityRepository::findByName).filter(Optional::isPresent).map(Optional::get).toList();
         }
-    if(roomRequest.getPhotoList()!=null)
+    if(roomRequest.getPhotos()!=null)
         {
-            photos = roomRequest.getPhotoList().stream().filter(ob -> photoRepository.findPhotoByUrl(ob.getUri())==null)
+            photos = roomRequest.getPhotos().stream().filter(ob -> photoRepository.findPhotoByUrl(ob.getUri())==null)
                     .map(photoDto -> new Photo(photoDto.getUri()))
                     .map(photoRepository::save).toList();
             System.out.println("Photos = " + photos);
@@ -516,7 +507,7 @@ public class PropertyServiceImpl implements PropertyService {
         room.setAmenities(amenities);
         room.setPhotos(photos);
         System.out.println(room.getPhotos());
-        room.setRoomTitle(roomRequest.getRoomTitle());
+        room.setRoomTitle(roomRequest.getTitle());
         room.setReviews(null);
         return room;
     }
@@ -641,6 +632,22 @@ public class PropertyServiceImpl implements PropertyService {
                }
        ).collect(toList());
        return rooms;
+    }
+
+
+    @Override
+    public List<LightweightProperty> getAll() {
+        List<Property> properties = propertyRepository.findAll();
+        List<LightweightProperty> dto = new ArrayList<>();
+        dto = properties.stream().map(this::getLightweightProperty).toList();
+        return dto;
+    }
+
+    @Override
+    public String deleteProperty(Long propertyId) {
+        Property property = propertyRepository.findById(propertyId).orElseThrow(PropertyNotFoundException::new);
+        propertyRepository.delete(property);
+        return "Success";
     }
 
     @Override
@@ -827,8 +834,8 @@ public class PropertyServiceImpl implements PropertyService {
         return roomType;
     }
 
-    private AttachmentType getAttachmentTypeFromDto(String type){
-
+    public static AttachmentType getAttachmentTypeFromDto(String type){
+        System.out.println("AttachmentTypes");
         return switch (type){
             case "Bathroom"->
                 AttachmentType.BATHROOM;
@@ -1207,6 +1214,61 @@ public class PropertyServiceImpl implements PropertyService {
         }
         return rentalResponseDto;
         }
+
+
+    private LightweightProperty getLightweightProperty(Property prop) {
+
+        LightweightProperty response = new LightweightProperty();
+
+        if(prop.getListingType()==ListingType.RENTAL){
+            Rental rental = (Rental) prop;
+            response.setRentalType(rental.getRentalType().getName());
+        }
+        if(prop.getListingType()==ListingType.HOME_STAYERS_EXPERIENCE){
+            HomeStay homeStay = (HomeStay) prop;
+            response.setStayType(homeStay.getStayType().getName());
+        }
+        response.setId(prop.getId());
+        if(!prop.getTitle().isEmpty()){
+            response.setTitle(prop.getTitle());
+        }
+        if(!prop.getPhotos().isEmpty()){
+            List<Photo> photos = new ArrayList<>(prop.getPhotos());
+            List<PhotoDto> photoDtos = new ArrayList<>();
+            for (Photo photo:photos){
+                PhotoDto photoDto = new PhotoDto();
+                if(photo.getUrl()!=null){
+                    photoDto.setUri(photo.getUrl());
+                }
+                photoDtos.add(photoDto);
+            }
+            response.setPhotos(photoDtos);
+        }
+        if(!prop.getReviews().isEmpty()){
+            List<Review> reviews = new ArrayList<>(prop.getReviews());
+
+            response.setReviews(reviews.stream().map(rev->{
+                ReviewDto revDto = new ReviewDto();
+                revDto.setUserId(rev.getUser().getId());
+                revDto.setComment(rev.getComment());
+                revDto.setRating(rev.getRating());
+                revDto.setId(rev.getId());
+                revDto.setCreatedAt(rev.getCreatedAt());
+                revDto.setUsername(rev.getUser().getUsername());
+                return revDto;
+            }).toList());
+        }
+        PriceDto priceDto= new PriceDto();
+        if(prop.getPrice()!=null){
+            priceDto.setCurrency(prop.getPrice().getCurrency().toString());
+
+            priceDto.setPricingModel(prop.getPrice().getModel().getDescriptiveName());
+            priceDto.setPrice(Double.parseDouble(prop.getPrice().getAmount().toString()));
+            response.setPrice(priceDto);
+        }
+
+        return response;
+    }
 
     private PropertyResponseDto setPropertyResponse(Property property){
         PropertyResponseDto propertyResponse = new PropertyResponseDto();
@@ -1713,12 +1775,11 @@ public class PropertyServiceImpl implements PropertyService {
             price.setAmount(amount);
             rental.setPrice(pricingRepository.save(price));
         }
-
         return propertyRepository.save(rental);
     }
 
     @Override
-    public Property createProperty(PropertyCreationRequest request){
+    public Property createProperty(PropertyCreationRequest request) throws Exception{
         Optional<Host> host = hostRepository.findById(request.getHostId());
 
         if(host.isEmpty()){
@@ -1794,11 +1855,12 @@ public class PropertyServiceImpl implements PropertyService {
             //TODO Add Services
         }
         //TODO Set Location and Address
-        Address address = Address.builder().address(request.getAddress()).street(request.getAddress()).city(request.getCity()).state(request.getProvince()).country("").build();
+        Address address = Address.builder().address(request.getAddress()).street(request.getAddress()).city(request.getCity()).state(request.getProvince()).country(request.getCountry()).build();
         Location location = new Location();
         location.setAddress(address);
         property.setLocation(locationRepository.save(location));
-        System.out.println("Before price:"+property);
+        System.out.println("Setting price");
+
         if(request.getPrice()!=null){
             Price price = new Price();
             Currency curr = Currency.valueOf(request.getPrice().getCurrency());
@@ -1816,7 +1878,7 @@ public class PropertyServiceImpl implements PropertyService {
             price.setAmount(amount);
             property.setPrice(pricingRepository.save(price));
         }
-        System.out.println("After Price:"+property);
+        System.out.println("Done setting price");
         return propertyRepository.save(property);
     }
 
