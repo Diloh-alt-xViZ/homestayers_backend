@@ -392,10 +392,19 @@ public class PropertyServiceImpl implements PropertyService {
     public EditCommonDataDto updateCommonData(Long propertyId, EditCommonDataDto editCommonDataDto) {
         Property property = (Property) propertyRepository.findById(propertyId).orElseThrow(PropertyNotFoundException::new);
         System.out.println("The Property:"+ property.getTitle());
-        property.setTitle(editCommonDataDto.getTitle());
-        property.setDescription(editCommonDataDto.getDescription());
-        property.setNeighbourhoodDetails(editCommonDataDto.getNeighbourhoodDetails());
-        property.setGettingAroundDetails(editCommonDataDto.getGettingAround());
+        if(editCommonDataDto.getTitle()!=null){
+            property.setTitle(editCommonDataDto.getTitle());
+        }
+        if(editCommonDataDto.getDescription()!=null){
+            property.setDescription(editCommonDataDto.getDescription());
+        }
+        if(editCommonDataDto.getNeighbourhoodDetails()!=null){
+            property.setNeighbourhoodDetails(editCommonDataDto.getNeighbourhoodDetails());
+        }
+        if(editCommonDataDto.getGettingAround()!=null){
+            property.setGettingAroundDetails(editCommonDataDto.getGettingAround());
+        }
+        
 
         if(editCommonDataDto.getPrice()!=null) {
             PriceDto priceDto = editCommonDataDto.getPrice();
