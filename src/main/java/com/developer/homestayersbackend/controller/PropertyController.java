@@ -314,7 +314,10 @@ public class PropertyController {
     @PreAuthorize("hasAuthority('USER')")
     @GetMapping("/hosts/{hostId}/getAll")
     public ResponseEntity<List<HostListingDto>> getHostListingDto(@PathVariable("hostId")Long hostId){
-        return ResponseEntity.ok().body(propertyService.getHostListingDto(hostId));
+
+        List<HostListingDto> list = propertyService.getHostListingDto(hostId);
+        System.out.println("My Dto:"+list);
+        return ResponseEntity.ok().body(list);
     }
 
 
