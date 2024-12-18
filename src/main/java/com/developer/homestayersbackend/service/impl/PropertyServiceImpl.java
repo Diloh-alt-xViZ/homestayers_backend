@@ -246,7 +246,7 @@ public class PropertyServiceImpl implements PropertyService {
         List<HostListingDto> dto = new ArrayList<>();
         Host host = hostRepository.findById(hostId).orElseThrow(HostNotFoundException::new);
         properties = propertyRepository.findByHostId(host.getId());
-        dto = properties.stream().map(PropertyServiceImpl::getHostListingDto).toList();
+        dto = properties.stream().map(PropertyServiceImpl::getHostListingDto).peek(System.out::println).toList();
         return dto;
     }
 
@@ -255,7 +255,6 @@ public class PropertyServiceImpl implements PropertyService {
         listing.setId(prop.getId());
         listing.setTitle(prop.getTitle());
         listing.setStartDate(prop.getCreatedAt());
-
         String approvalStatus = switch (prop.getApprovalStatus()){
 
             case PENDING -> "Pending";
