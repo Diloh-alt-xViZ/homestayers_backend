@@ -2,14 +2,11 @@ package com.developer.homestayersbackend.controller;
 
 
 import com.developer.homestayersbackend.dto.*;
-
 import com.developer.homestayersbackend.entity.*;
-
 import com.developer.homestayersbackend.service.api.PropertyService;
 import com.developer.homestayersbackend.util.ListingType;
 import com.developer.homestayersbackend.util.ListingTypeDto;
 import com.developer.homestayersbackend.util.RentalTypeDto;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,13 +28,6 @@ public class PropertyController {
     @GetMapping("/props")
     public String getString(){
         return "Hey Fella";
-    }
-    
-    @PreAuthorize("hasAuthority('USER')")
-    @GetMapping("/all")
-    public ResponseEntity<List<LightweightProperty>> getLightweightProperties(){
-
-        return ResponseEntity.ok().body(propertyService.getAll());
     }
 
 
@@ -301,6 +291,20 @@ public class PropertyController {
     }
 
     @PreAuthorize("hasAuthority('USER')")
+    @DeleteMapping("/{propertyId}/remove")
+    public ResponseEntity<String> removeProperty(@PathVariable("propertyId")Long propertyId){
+
+        return ResponseEntity.ok().body(propertyService.deleteProperty(propertyId));
+    }
+
+    @PreAuthorize("hasAuthority('USER')")
+    @GetMapping("/all")
+    public ResponseEntity<List<LightweightProperty>> getLightweightProperties(){
+
+        return ResponseEntity.ok().body(propertyService.getAll());
+    }
+
+    @PreAuthorize("hasAuthority('USER')")
     @GetMapping("/hosts/{hostId}/getAllTypes")
     public ResponseEntity<List<CommonPropertyDto>> getCommonPropertyData(@PathVariable("hostId")Long hostId){
 
@@ -332,8 +336,8 @@ public class PropertyController {
 
     @PreAuthorize("hasAuthority('USER')")
     @PostMapping("/create")
-    public ResponseEntity<Property> createProperty(@RequestBody PropertyCreationRequest property){
-        System.out.println("Property:"+property);
+    public ResponseEntity<Property> createProperty(@RequestBody PropertyCreationRequest property) throws Exception {
+
         return ResponseEntity.status(HttpStatus.CREATED).body(propertyService.createProperty(property));
     }
 
