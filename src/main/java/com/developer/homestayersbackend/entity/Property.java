@@ -33,7 +33,7 @@ public class Property {
     private Long id;
     @ManyToOne(fetch = FetchType.LAZY)
     private Host host;
-    @OneToOne()
+    @OneToOne(fetch = FetchType.LAZY)
     private Location location;
     private String neighbourhoodDetails;
     private String gettingAroundDetails;
@@ -45,7 +45,7 @@ public class Property {
     private Date updatedAt;
     @Enumerated(EnumType.STRING)
     private ServiceStatus status;
-    @OneToMany
+    @OneToMany(fetch = FetchType.LAZY)
     private List<Room> rooms;
     @ElementCollection
     @CollectionTable(name = "property_booked_dates", joinColumns = {
@@ -54,7 +54,7 @@ public class Property {
     })
     @Column(name = "booked_date")
     private List<Date> bookedDates;
-    @OneToMany
+    @OneToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "property_photos_join",
             joinColumns = {
@@ -67,22 +67,21 @@ public class Property {
     private List<Photo> photos;
     @Enumerated(EnumType.STRING)
     private ApprovalStatus approvalStatus;
-    @ManyToMany()
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "property_amenities_join",joinColumns = {
             @JoinColumn(name = "property_id")
     },inverseJoinColumns = {
             @JoinColumn(name = "amenity_id")
     })
     private List<Amenity> amenities;
-    @ManyToMany()
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "property_service_join",joinColumns = {
             @JoinColumn(name = "property_id")
     },inverseJoinColumns = {
             @JoinColumn(name = "service_id")
     })
     private List<Services> services;
-
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "property_house_rules_join"
             ,joinColumns = {
@@ -93,7 +92,7 @@ public class Property {
             }
     )
     private List<HouseRule> houseRules;
-    @OneToMany(mappedBy = "propertyId")
+    @OneToMany(mappedBy = "propertyId",fetch = FetchType.LAZY)
     private List<CustomHouseRule> customHouseRules;
     @OneToOne
     private Price price;
