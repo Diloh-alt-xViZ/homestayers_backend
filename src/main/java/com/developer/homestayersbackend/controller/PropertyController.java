@@ -325,7 +325,7 @@ public class PropertyController {
 
     @PreAuthorize("hasAuthority('USER')")
     @PostMapping("/create")
-    public ResponseEntity<Property> createProperty(@RequestBody PropertyCreationRequest property) throws Exception {
+    public ResponseEntity<Property> createProperty(@RequestBody PropertyCreationRequest property){
         System.out.println("Property:"+property);
         return ResponseEntity.status(HttpStatus.CREATED).body(propertyService.createProperty(property));
     }
