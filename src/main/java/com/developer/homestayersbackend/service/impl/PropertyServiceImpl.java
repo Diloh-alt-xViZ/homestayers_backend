@@ -243,10 +243,10 @@ public class PropertyServiceImpl implements PropertyService {
     @Override
     public List<HostListingDto> getHostListingDto(Long hostId) {
         List<Property> properties = new ArrayList<>();
-        List<HostListingDto> dto = new ArrayList<>();
         Host host = hostRepository.findById(hostId).orElseThrow(HostNotFoundException::new);
         properties = propertyRepository.findByHostId(host.getId());
-        dto = properties.stream().map(PropertyServiceImpl::getHostListingDto).peek(System.out::println).toList();
+        List<HostListingDto> dto = new ArrayList<>(properties.stream().map(PropertyServiceImpl::getHostListingDto).peek(System.out::println).toList());
+        System.out.println("My Listings:"+ dto);
         return dto;
     }
 
