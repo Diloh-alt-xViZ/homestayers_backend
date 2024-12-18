@@ -311,6 +311,12 @@ public class PropertyController {
         return ResponseEntity.ok(propertyService.getCommonProperties(hostId));
     }
 
+    @PreAuthorize("hasAuthority('USER')")
+    @GetMapping("/hosts/{hostId}/getAll")
+    public ResponseEntity<List<HostListingDto>> getHostListingDto(@PathVariable("hostId")Long hostId){
+        return ResponseEntity.ok().body(propertyService.getHostListingDto(hostId));
+    }
+
 
 
     @GetMapping("/homestay/getTypes")
