@@ -8,7 +8,7 @@ import com.developer.homestayersbackend.util.RentalTypeDto;
 import java.util.List;
 
 public interface PropertyService {
-    Property createProperty(PropertyCreationRequest request) throws Exception;
+    Property createProperty(PropertyCreationRequest request);
     Amenity createAmenity(AmenityCreationRequest request);
     AmenityCategory createAmenityCategory(AmenityCategoryCreationRequest request);
     List<Amenity> getAmenitiesByCategory(int categoryId);
