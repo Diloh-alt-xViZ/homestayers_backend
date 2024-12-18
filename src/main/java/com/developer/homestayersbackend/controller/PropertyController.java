@@ -32,6 +32,13 @@ public class PropertyController {
     public String getString(){
         return "Hey Fella";
     }
+    
+    @PreAuthorize("hasAuthority('USER')")
+    @GetMapping("/all")
+    public ResponseEntity<List<LightweightProperty>> getLightweightProperties(){
+
+        return ResponseEntity.ok().body(propertyService.getAll());
+    }
 
 
     @PreAuthorize("hasAuthority('USER')")
