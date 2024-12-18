@@ -1,5 +1,6 @@
 package com.developer.homestayersbackend.service.api;
 
+import com.developer.homestayersbackend.dto.HostListingDto;
 import com.developer.homestayersbackend.dto.*;
 import com.developer.homestayersbackend.entity.*;
 import com.developer.homestayersbackend.util.ListingTypeDto;
@@ -90,4 +91,6 @@ public interface PropertyService {
     List<LightweightProperty> getAll();
 
     String deleteProperty(Long propertyId);
+
+    List<HostListingDto> getHostListingDto(Long hostId);
 }
