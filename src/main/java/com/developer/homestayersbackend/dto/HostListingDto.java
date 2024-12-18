@@ -1,4 +1,4 @@
-package com.developer.homestayersbackend.controller;
+package com.developer.homestayersbackend.dto;
 
 
 import com.developer.homestayersbackend.dto.PhotoDto;
