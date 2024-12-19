@@ -354,8 +354,9 @@ public class PropertyController {
     @PreAuthorize("hasAuthority('USER')")
     @GetMapping("/other/{propertyId}")
     public ResponseEntity<PropertyResponseDto> getOtherProperty(@PathVariable("propertyId")Long propertyId){
-
-        return ResponseEntity.ok().body(propertyService.getProperty(propertyId));
+        PropertyResponseDto response = propertyService.getProperty(propertyId);
+        System.out.println("Other Property: "+response);
+        return ResponseEntity.ok().body(response);
     }
 
     @PreAuthorize("hasAuthority('USER')")
