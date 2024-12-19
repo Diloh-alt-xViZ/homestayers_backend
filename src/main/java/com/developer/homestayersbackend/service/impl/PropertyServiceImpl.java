@@ -7,6 +7,7 @@ import com.developer.homestayersbackend.repository.*;
 import com.developer.homestayersbackend.service.api.PropertyService;
 import com.developer.homestayersbackend.util.*;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.Hibernate;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
@@ -229,7 +230,17 @@ public class PropertyServiceImpl implements PropertyService {
     @Override
     public HomeStayResponseDto getHomeStayProperty(Long propertyId) {
         HomeStay homeStay = (HomeStay) propertyRepository.findById(propertyId).orElseThrow(PropertyNotFoundException::new);
-
+        Hibernate.initialize(homeStay.getHost());
+        Hibernate.initialize(homeStay.getLocation());
+        Hibernate.initialize(homeStay.getRooms());
+        Hibernate.initialize(homeStay.getBookedDates());
+        Hibernate.initialize(homeStay.getPhotos());
+        Hibernate.initialize(homeStay.getAmenities());
+        Hibernate.initialize(homeStay.getServices());
+        Hibernate.initialize(homeStay.getHouseRules());
+        Hibernate.initialize(homeStay.getCustomHouseRules());
+        Hibernate.initialize(homeStay.getPrice());
+        Hibernate.initialize(homeStay.getReviews());
         return setHomeStayResponse(homeStay);
     }
 
@@ -237,6 +248,17 @@ public class PropertyServiceImpl implements PropertyService {
     public RentalResponseDto getRentalProperty(Long propertyId) {
 
         Rental  prop =(Rental) propertyRepository.findById(propertyId).orElseThrow(PropertyNotFoundException::new);
+        Hibernate.initialize(prop.getHost());
+        Hibernate.initialize(prop.getLocation());
+        Hibernate.initialize(prop.getRooms());
+        Hibernate.initialize(prop.getBookedDates());
+        Hibernate.initialize(prop.getPhotos());
+        Hibernate.initialize(prop.getAmenities());
+        Hibernate.initialize(prop.getServices());
+        Hibernate.initialize(prop.getHouseRules());
+        Hibernate.initialize(prop.getCustomHouseRules());
+        Hibernate.initialize(prop.getPrice());
+        Hibernate.initialize(prop.getReviews());
         return setRentalPropertyResponse(prop);
     }
 
@@ -1003,15 +1025,22 @@ public class PropertyServiceImpl implements PropertyService {
 
     @Override
     public PropertyResponseDto getProperty(Long propertyId) {
-        Optional<Property> property = propertyRepository.findById(propertyId);
+        Property property = propertyRepository.findById(propertyId).orElseThrow(PropertyNotFoundException::new);
+        Hibernate.initialize(property.getHost());
+        Hibernate.initialize(property.getLocation());
+        Hibernate.initialize(property.getRooms());
+        Hibernate.initialize(property.getBookedDates());
+        Hibernate.initialize(property.getPhotos());
+        Hibernate.initialize(property.getAmenities());
+        Hibernate.initialize(property.getServices());
+        Hibernate.initialize(property.getHouseRules());
+        Hibernate.initialize(property.getCustomHouseRules());
+        Hibernate.initialize(property.getPrice());
+        Hibernate.initialize(property.getReviews());
         PropertyResponseDto propertyResponse = new PropertyResponseDto();
-        if(property.isEmpty()){
-            throw new PropertyNotFoundException();
-        }
-        else {
-            propertyResponse  = setPropertyResponse(property.get());
+            propertyResponse  = setPropertyResponse(property);
             return propertyResponse;
-        }
+
     }
 
 
@@ -1259,7 +1288,6 @@ public class PropertyServiceImpl implements PropertyService {
             priceDto.setPrice(Double.parseDouble(property.getPrice().getAmount().toString()));
             rentalResponseDto.setPrice(priceDto);
         }
-        
         return rentalResponseDto;
         }
 
@@ -1314,7 +1342,6 @@ public class PropertyServiceImpl implements PropertyService {
             priceDto.setPrice(Double.parseDouble(prop.getPrice().getAmount().toString()));
             response.setPrice(priceDto);
         }
-        
         response.setListingType(prop.getListingType().toString());
         return response;
     }
