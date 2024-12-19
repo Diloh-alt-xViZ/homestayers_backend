@@ -1259,6 +1259,7 @@ public class PropertyServiceImpl implements PropertyService {
             priceDto.setPrice(Double.parseDouble(property.getPrice().getAmount().toString()));
             rentalResponseDto.setPrice(priceDto);
         }
+        
         return rentalResponseDto;
         }
 
@@ -1315,7 +1316,6 @@ public class PropertyServiceImpl implements PropertyService {
         }
         
         response.setListingType(prop.getListingType().toString());
-
         return response;
     }
 
