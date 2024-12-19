@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.hibernate.Hibernate;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -227,6 +228,7 @@ public class PropertyServiceImpl implements PropertyService {
         return roomTypesList;
     }
 
+    @Transactional
     @Override
     public HomeStayResponseDto getHomeStayProperty(Long propertyId) {
         HomeStay homeStay = (HomeStay) propertyRepository.findById(propertyId).orElseThrow(PropertyNotFoundException::new);
@@ -244,6 +246,7 @@ public class PropertyServiceImpl implements PropertyService {
         return setHomeStayResponse(homeStay);
     }
 
+    @Transactional
     @Override
     public RentalResponseDto getRentalProperty(Long propertyId) {
 
@@ -1023,6 +1026,7 @@ public class PropertyServiceImpl implements PropertyService {
         return roomList;
     }
 
+    @Transactional
     @Override
     public PropertyResponseDto getProperty(Long propertyId) {
         Property property = propertyRepository.findById(propertyId).orElseThrow(PropertyNotFoundException::new);
@@ -1345,6 +1349,7 @@ public class PropertyServiceImpl implements PropertyService {
         response.setListingType(prop.getListingType().toString());
         return response;
     }
+
 
     private PropertyResponseDto setPropertyResponse(Property property){
         PropertyResponseDto propertyResponse = new PropertyResponseDto();
