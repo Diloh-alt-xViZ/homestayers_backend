@@ -31,9 +31,9 @@ public class Property {
     @GeneratedValue
     @Column(name = "property_id")
     private Long id;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne()
     private Host host;
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne()
     private Location location;
     private String neighbourhoodDetails;
     private String gettingAroundDetails;
@@ -45,7 +45,7 @@ public class Property {
     private Date updatedAt;
     @Enumerated(EnumType.STRING)
     private ServiceStatus status;
-    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany()
     private List<Room> rooms;
     @ElementCollection
     @CollectionTable(name = "property_booked_dates", joinColumns = {
@@ -67,21 +67,21 @@ public class Property {
     private List<Photo> photos;
     @Enumerated(EnumType.STRING)
     private ApprovalStatus approvalStatus;
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany()
     @JoinTable(name = "property_amenities_join",joinColumns = {
             @JoinColumn(name = "property_id")
     },inverseJoinColumns = {
             @JoinColumn(name = "amenity_id")
     })
     private List<Amenity> amenities;
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany()
     @JoinTable(name = "property_service_join",joinColumns = {
             @JoinColumn(name = "property_id")
     },inverseJoinColumns = {
             @JoinColumn(name = "service_id")
     })
     private List<Services> services;
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany()
     @JoinTable(
             name = "property_house_rules_join"
             ,joinColumns = {
@@ -92,7 +92,7 @@ public class Property {
             }
     )
     private List<HouseRule> houseRules;
-    @OneToMany(mappedBy = "propertyId",fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "propertyId")
     private List<CustomHouseRule> customHouseRules;
     @OneToOne
     private Price price;
