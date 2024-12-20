@@ -13,7 +13,6 @@ import com.developer.homestayersbackend.service.api.PhoneVerificationService;
 import com.developer.homestayersbackend.service.api.TwilioService;
 import com.developer.homestayersbackend.util.PhoneNumberUtils;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -60,11 +59,12 @@ public class PhoneVerificationServiceImpl implements PhoneVerificationService {
 
     private PhoneVerification checkVerification(String phone){
         System.out.println("Phone:"+phone);
-        return phoneVerificationRepository.findByPhoneNumber(PhoneNumberUtils.formatToE164(phone,"+263"));
+        return phoneVerificationRepository.findByPhoneNumber(PhoneNumberUtils.getPhoneNumber(phone).getFullNumber());
     }
 
     @Override
     public PhoneVerification getPhoneVerification(String phone) {
+        System.out.println("Phone:"+phone);
         OtpResponse otpResponse = twilioService.sendVerificationCode(phone);
         System.out.println(otpResponse.getOtp());
         PhoneVerification phoneVerification = new PhoneVerification();
