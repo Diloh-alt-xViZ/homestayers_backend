@@ -8,16 +8,12 @@ import com.developer.homestayersbackend.exception.UserNotFoundException;
 import com.developer.homestayersbackend.service.api.PhoneNumberAuthService;
 import com.developer.homestayersbackend.service.api.PhoneVerificationService;
 import com.developer.homestayersbackend.service.api.UserService;
-import com.developer.homestayersbackend.util.AuthenticationStatus;
-import com.developer.homestayersbackend.util.PhoneNumberUtils;
 import com.developer.homestayersbackend.util.RegistrationStatus;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -99,6 +95,7 @@ public class AuthenticationController {
 
     }
 **/
+
 
 
 
@@ -187,9 +184,9 @@ public class AuthenticationController {
 
     @PostMapping("/phone-number/request-verification")
     public ResponseEntity<String> phoneNumber(@RequestParam String phoneNumber) {
-                phoneNumber = "+" + phoneNumber;
+            
             PhoneVerification otp = phoneVerificationService.getPhoneVerification(phoneNumber);
-            String response = "";
+            String response;
             if(otp!=null){
                 response = "Success";
             }
@@ -198,6 +195,8 @@ public class AuthenticationController {
             }
             return ResponseEntity.ok(response);
     }
+
+
 
     @PostMapping("/phone-number/verifyPhone")
     public ResponseEntity<AuthenticationResponse> verifyPhone(@RequestBody PhoneNumberAuth phoneNumberAuth) {
