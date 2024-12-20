@@ -6,7 +6,6 @@ import com.developer.homestayersbackend.exception.*;
 import com.developer.homestayersbackend.repository.*;
 import com.developer.homestayersbackend.service.api.BookingService;
 import com.developer.homestayersbackend.service.api.TwilioService;
-import com.developer.homestayersbackend.util.ApprovalStatus;
 import com.developer.homestayersbackend.util.ListingType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -109,15 +108,8 @@ public class BookingServiceImpl implements BookingService {
         property.setBookedDates(bookedDates);
         booking.setDateUpdated(new Date(System.currentTimeMillis()));
         propertyRepository.flush();
-//        Room room = booking.getRoom();
-  //      String message = "";
-    //    if(room != null){
-      //      message = String.format("Booking request for %s at %s from %s to %s was accepted", booking.getGuest().getUsername(),room.getRoomTitle(),booking.getStartDate(),booking.getEndDate());
-        //}
-        //else{
-          //  message = String.format("Booking request for %s at %s from %s to %s was accepted",booking.getGuest().getUsername(),booking.getProperty().getTitle(),booking.getStartDate(),booking.getEndDate());
-        //}
-        //twilioService.sendBookingNotification(booking.getProperty().getHost().getUser().getPhoneNumber(), message,booking.getGuest().getPhoneNumber());
+        String message = getRejectMessage(booking, "Booking request for %s at %s from %s to %s was accepted");
+        twilioService.sendBookingNotification(booking.getProperty().getHost().getUser().getPhoneNumber(), message,booking.getGuest().getPhoneNumber());
         bookingRepository.save(booking);
 
         return "Success";
@@ -128,17 +120,22 @@ public class BookingServiceImpl implements BookingService {
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(BookingNotFoundException::new);
         booking.setBookingStatus(BookingStatus.REJECTED);
         booking.setDateUpdated(new Date(System.currentTimeMillis()));
-        Room room = booking.getRoom();
-        String message = "";
-       if(room != null){
-            message = String.format("Booking request for %s at %s from %s to %s was rejected", booking.getGuest().getUsername(),room.getRoomTitle(),booking.getStartDate(),booking.getEndDate());
-        }
-        else{
-            message = String.format("Booking request for %s at %s from %s to %s was rejected",booking.getGuest().getUsername(),booking.getProperty().getTitle(),booking.getStartDate(),booking.getEndDate());
-        }
-       twilioService.sendBookingNotification(booking.getProperty().getHost().getUser().getPhoneNumber(), message,booking.getGuest().getPhoneNumber());
+        System.out.println("Booking:"+booking);
+        String message = getRejectMessage(booking, "Booking request for %s at %s from %s to %s was rejected");
+        twilioService.sendBookingNotification(booking.getProperty().getHost().getUser().getPhoneNumber(), message,booking.getGuest().getPhoneNumber());
         bookingRepository.save(booking);
         return  "Success";
+    }
+
+    private static String getRejectMessage(Booking booking, String format) {
+        Room room = booking.getRoom();
+        String message = "";
+        if (room != null) {
+            message = String.format(format, booking.getGuest().getUsername(), room.getRoomTitle(), booking.getStartDate(), booking.getEndDate());
+        } else {
+            message = String.format(format, booking.getGuest().getUsername(), booking.getProperty().getTitle(), booking.getStartDate(), booking.getEndDate());
+        }
+        return message;
     }
 
     @Override
@@ -208,7 +205,6 @@ public class BookingServiceImpl implements BookingService {
         Booking bookingEntity = bookingRepository.save(booking);
         String message = String.format("Booking request from %s for %s from %s ", user.getUsername(),property.getTitle(),booking.getStartDate());
         twilioService.sendBookingNotification(property.getHost().getUser().getPhoneNumber(),message,booking.getGuest().getPhoneNumber());
-
         return null;
     }
 
@@ -226,6 +222,9 @@ public class BookingServiceImpl implements BookingService {
         if(user.getVerificationStatus()!=VerificationStatus.VERIFIED){
             throw new UserNotVerifiedException();
         }
+        if(user.getPhoneNumber()==null){
+            throw new PhoneNumberNotVerifiedException();
+        }
         booking.setGuest(user);
         booking.setProperty(property);
         booking.setHost(property.getHost());
@@ -234,16 +233,14 @@ public class BookingServiceImpl implements BookingService {
             booking.setEndDate(request.getEndDate());
         }
         booking.setBookedDates();
-        System.out.println("Booked Dates for booking:"+ booking.getBookedDates());
-
         booking.setDateUpdated(new Date(System.currentTimeMillis()));
         booking.setDateBooked(new Date(System.currentTimeMillis()));
         booking.setBookingStatus(BookingStatus.PENDING);
         booking.setNumberOfGuests(request.getNumberOfGuests());
         booking.setPrice(BigDecimal.valueOf(request.getPrice()));
-        Booking bookingEntity =        bookingRepository.save(booking);
+        Booking bookingEntity = bookingRepository.save(booking);
         String message = String.format("Booking request for %s at %s from %s to %s", bookingEntity.getGuest().getUsername(),booking.getRoom().getRoomTitle(),booking.getStartDate(),booking.getEndDate());
-       twilioService.sendBookingNotification(property.getHost().getUser().getPhoneNumber(),message,booking.getGuest().getPhoneNumber());
+        twilioService.sendBookingNotification(property.getHost().getUser().getPhoneNumber(),message,booking.getGuest().getPhoneNumber());
         return BookingResponseDto.builder().bookingId(bookingEntity.getId()).propertyName(bookingEntity.getProperty().getTitle()).build();
     }
 
@@ -277,9 +274,9 @@ public class BookingServiceImpl implements BookingService {
         bookingEntity.setHost(property.getHost());
         bookingEntity.setDateUpdated(new Date(System.currentTimeMillis()));
         Booking savedBooking  = bookingRepository.save(bookingEntity);
-         String message = String.format("Booking request for %s at %s from %s to %s", guest.getUsername(),property.getTitle(),booking.getStartDate(),booking.getEndDate());
-          System.out.println();
-        twilioService.sendBookingNotification(property.getHost().getUser().getPhoneNumber(),message,guest.getPhoneNumber());
+//        String message = String.format("Booking request for %s at %s from %s to %s", guest.getUsername(),property.getTitle(),booking.getStartDate(),booking.getEndDate());
+  //      System.out.println();
+    //    twilioService.sendBookingNotification(property.getHost().getUser().getPhoneNumber(),message,guest.getPhoneNumber());
 
 
 
