@@ -36,7 +36,8 @@ public class Booking {
     private Long numberOfGuests;
     @OneToOne
     Room room;
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "property_id",nullable = false)
     private Property property;
     private Date dateBooked;
     private Date startDate;
