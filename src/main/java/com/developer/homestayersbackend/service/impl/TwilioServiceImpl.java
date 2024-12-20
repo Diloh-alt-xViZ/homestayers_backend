@@ -38,6 +38,7 @@ public class TwilioServiceImpl implements TwilioService {
         String message = "Dear Customer, your verification code is "+ otp+", valid for 5 minutes.";
         String formattedNumber = PhoneNumberUtils.getPhoneNumber(phoneNumber).getFullNumber();
         com.twilio.type.PhoneNumber twilioPhoneNumber = new com.twilio.type.PhoneNumber(formattedNumber);
+        System.out.println("Twilio Phone Number:"+twilioPhoneNumber);
         Message.creator(twilioPhoneNumber,"MG3b661a52e30568105397c695acc770d8", message).create();
         System.out.println("Verification Message Sent");
         return new OtpResponse(otp,formattedNumber);
