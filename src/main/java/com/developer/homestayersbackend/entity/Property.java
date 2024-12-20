@@ -96,6 +96,8 @@ public class Property {
     private List<CustomHouseRule> customHouseRules;
     @OneToOne
     private Price price;
+    @OneToMany(mappedBy = "property",fetch = FetchType.LAZY,cascade = CascadeType.ALL,orphanRemoval = true)
+    private List<Booking> bookings;
     @OneToMany(mappedBy = "property")
     private List<Review> reviews;
 
