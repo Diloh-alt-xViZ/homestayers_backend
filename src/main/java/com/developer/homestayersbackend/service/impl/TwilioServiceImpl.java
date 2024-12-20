@@ -9,7 +9,6 @@ import com.developer.homestayersbackend.repository.UserRepository;
 import com.developer.homestayersbackend.service.api.TwilioService;
 import com.developer.homestayersbackend.util.PhoneNumberUtils;
 import com.twilio.rest.api.v2010.account.Message;
-import com.twilio.rest.verify.v2.service.VerificationCheck;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -24,12 +23,12 @@ public class TwilioServiceImpl implements TwilioService {
     private final UserRepository userRepository;
     private final PhoneVerificationRepository verificationRepository;
     private final TwilioConfig twilioConfig;
-    private static final String MESSAGINGSERVICESID = "MG3b661a52e30568105397c695acc770d8";
+    private static final String MESSAGINGSERVICESID = "MGc586bbbe21b7b2c349fae6f12408e57c";
 
     @Override
     public boolean verifyCode(String phoneNumber) {
         Optional<User> user = userRepository.findByUsername(phoneNumber);
-
+        //
         return user.isPresent();
     }
 
@@ -37,9 +36,10 @@ public class TwilioServiceImpl implements TwilioService {
     public OtpResponse sendVerificationCode(String phoneNumber) {
         String otp = generateOtp();
         String message = "Dear Customer, your verification code is "+ otp+", valid for 5 minutes.";
-        String formattedNumber = PhoneNumberUtils.formatToE164(phoneNumber,"");
+        String formattedNumber = PhoneNumberUtils.getPhoneNumber(phoneNumber).getFullNumber();
         com.twilio.type.PhoneNumber twilioPhoneNumber = new com.twilio.type.PhoneNumber(formattedNumber);
         Message.creator(twilioPhoneNumber,"MG3b661a52e30568105397c695acc770d8", message).create();
+        System.out.println("Verification Message Sent");
         return new OtpResponse(otp,formattedNumber);
     }
     private String generateOtp() {
