@@ -25,6 +25,14 @@ public class GlobalExceptionHandler {
         error.setStatus(HttpStatus.UNAUTHORIZED);
         return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
     }
+    @ExceptionHandler(PhoneNumberNotVerifiedException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<RequestError> handlePhoneNumberNOtVerifiedException(PhoneNumberNotVerifiedException e) {
+        RequestError error = new RequestError();
+        error.setMessage("Phone number absent");
+        error.setStatus(HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String,String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
