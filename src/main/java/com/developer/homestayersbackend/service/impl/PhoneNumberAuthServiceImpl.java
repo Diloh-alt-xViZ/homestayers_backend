@@ -24,7 +24,8 @@ public class PhoneNumberAuthServiceImpl implements PhoneNumberAuthService {
 
     @Override
     public OtpResponse sendVerificationCode(String phoneNumber) {
-        return    twilioService.sendVerificationCode(phoneNumber);
+
+        return    twilioService.sendVerificationCode(phoneNumber, TwilioServiceImpl.generateOtp());
 
     }
 
