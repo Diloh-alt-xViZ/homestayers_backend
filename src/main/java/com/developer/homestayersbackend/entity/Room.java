@@ -39,7 +39,6 @@ public class Room {
     private String description;
     @OneToMany()
     private List<Photo> photos;
-
     @ManyToMany()
     private List<Amenity> amenities;
     @ManyToMany()
