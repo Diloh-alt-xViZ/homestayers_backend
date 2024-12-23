@@ -54,7 +54,7 @@ public class Property {
     })
     @Column(name = "booked_date")
     private List<Date> bookedDates;
-    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany()
     @JoinTable(
             name = "property_photos_join",
             joinColumns = {
