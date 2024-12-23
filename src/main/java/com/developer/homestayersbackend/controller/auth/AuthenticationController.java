@@ -184,7 +184,7 @@ public class AuthenticationController {
 
     @PostMapping("/phone-number/request-verification")
     public ResponseEntity<String> phoneNumber(@RequestParam String phoneNumber) {
-            
+
             PhoneVerification otp = phoneVerificationService.getPhoneVerification(phoneNumber);
             String response;
             if(otp!=null){
