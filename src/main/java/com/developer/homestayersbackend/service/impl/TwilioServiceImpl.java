@@ -8,6 +8,7 @@ import com.developer.homestayersbackend.repository.PhoneVerificationRepository;
 import com.developer.homestayersbackend.repository.UserRepository;
 import com.developer.homestayersbackend.service.api.TwilioService;
 import com.developer.homestayersbackend.util.PhoneNumberUtils;
+import com.twilio.exception.TwilioException;
 import com.twilio.rest.api.v2010.account.Message;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -33,8 +34,8 @@ public class TwilioServiceImpl implements TwilioService {
     }
 
     @Override
-    public OtpResponse sendVerificationCode(String phoneNumber) {
-        String otp = generateOtp();
+    public OtpResponse sendVerificationCode(String phoneNumber, String otp) throws TwilioException {
+
         String message = "Dear Customer, your verification code is "+ otp+", valid for 5 minutes.";
         String formattedNumber = PhoneNumberUtils.getPhoneNumber(phoneNumber).getFullNumber();
         com.twilio.type.PhoneNumber twilioPhoneNumber = new com.twilio.type.PhoneNumber(formattedNumber);
@@ -43,7 +44,7 @@ public class TwilioServiceImpl implements TwilioService {
         System.out.println("Verification Message Sent");
         return new OtpResponse(otp,formattedNumber);
     }
-    private String generateOtp() {
+    public static String generateOtp() {
         Random random = new Random();
         int otp = 100000 + random.nextInt(900000);
 
@@ -51,7 +52,7 @@ public class TwilioServiceImpl implements TwilioService {
     }
 
     @Override
-    public void sendBookingNotification(PhoneNumber hostPhoneNumber, String message, PhoneNumber guestPhoneNumber) {
+    public void sendBookingNotification(PhoneNumber hostPhoneNumber, String message, PhoneNumber guestPhoneNumber) throws Exception {
 
         com.twilio.type.PhoneNumber guestPhone = new com.twilio.type.PhoneNumber(guestPhoneNumber.getFullNumber());
         com.twilio.type.PhoneNumber hostPhone = new com.twilio.type.PhoneNumber(hostPhoneNumber.getFullNumber());
@@ -60,13 +61,13 @@ public class TwilioServiceImpl implements TwilioService {
     }
 
     @Override
-    public void sendBookingApprovalNotification(PhoneNumber phoneNumber, String approvalMessage) {
+    public void sendBookingApprovalNotification(PhoneNumber phoneNumber, String approvalMessage) throws Exception{
         com.twilio.type.PhoneNumber guestPhone = new com.twilio.type.PhoneNumber(phoneNumber.getFullNumber());
         Message.creator(guestPhone,"MG3b661a52e30568105397c695acc770d8",approvalMessage).create();
     }
 
     @Override
-    public void sendBookingDenialNotification(PhoneNumber guestPhoneNumber, String message) {
+    public void sendBookingDenialNotification(PhoneNumber guestPhoneNumber, String message) throws Exception {
         com.twilio.type.PhoneNumber guestPhone = new com.twilio.type.PhoneNumber(guestPhoneNumber.getFullNumber());
         Message.creator(guestPhone,"MG3b661a52e30568105397c695acc770d8",message).create();
     }
