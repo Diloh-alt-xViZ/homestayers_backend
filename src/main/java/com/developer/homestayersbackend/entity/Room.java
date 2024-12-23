@@ -37,19 +37,21 @@ public class Room {
     @Column(name = "booked_date")
     private List<Date> bookedDates;
     private String description;
-    @OneToMany
+    @OneToMany()
     private List<Photo> photos;
-    @ManyToMany
+
+    @ManyToMany()
     private List<Amenity> amenities;
-    @ManyToMany
+    @ManyToMany()
     private List<Services> services;
-    @OneToMany
+    @OneToMany()
     private List<Review> reviews;
     @Enumerated(EnumType.STRING)
     private RoomType roomType;
     @OneToOne
     private Price price;
-    @ManyToMany
+
+    @ManyToMany()
     private List<RoomAttachment> roomAttachments;
 
 }
