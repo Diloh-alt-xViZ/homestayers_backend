@@ -65,8 +65,17 @@ public class PhoneVerificationServiceImpl implements PhoneVerificationService {
     @Override
     public PhoneVerification getPhoneVerification(String phone) {
         System.out.println("Phone:"+phone);
-        OtpResponse otpResponse = twilioService.sendVerificationCode(phone);
-        System.out.println(otpResponse.getOtp());
+        OtpResponse otpResponse;
+        String otp = TwilioServiceImpl.generateOtp();
+        try{
+            otpResponse = twilioService.sendVerificationCode(phone,otp);
+
+        }
+        catch (Exception e){
+            System.out.println(e.getMessage());
+        }
+
+
         PhoneVerification phoneVerification = new PhoneVerification();
         System.out.println(phone);
         var verificationCodeForNumberExists = checkVerification(phone);
@@ -75,9 +84,9 @@ public class PhoneVerificationServiceImpl implements PhoneVerificationService {
             System.out.println("Deleting verification code for phone number: " + phone);
             phoneVerificationRepository.delete(verificationCodeForNumberExists);
         }
-        phoneVerification.setPhoneNumber(otpResponse.getFormattedNumber());
+        phoneVerification.setPhoneNumber(PhoneNumberUtils.getPhoneNumber(phone).getFullNumber());
         phoneVerification.setExpirationDate(LocalDateTime.now().plusMinutes(5L));
-        phoneVerification.setVerificationCode(otpResponse.getOtp());
+        phoneVerification.setVerificationCode(otp);
         return phoneVerificationRepository.save(phoneVerification);
     }
 }
