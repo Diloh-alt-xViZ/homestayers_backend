@@ -109,9 +109,14 @@ public class BookingServiceImpl implements BookingService {
         booking.setDateUpdated(new Date(System.currentTimeMillis()));
         propertyRepository.flush();
         String message = getRejectMessage(booking, "Booking request for %s at %s from %s to %s was accepted");
-        twilioService.sendBookingNotification(booking.getProperty().getHost().getUser().getPhoneNumber(), message,booking.getGuest().getPhoneNumber());
         bookingRepository.save(booking);
+        try{
+            twilioService.sendBookingNotification(booking.getProperty().getHost().getUser().getPhoneNumber(), message,booking.getGuest().getPhoneNumber());
 
+        }
+        catch(Exception ex){
+            System.out.println(ex.getMessage());
+        }
         return "Success";
     }
 
@@ -122,8 +127,13 @@ public class BookingServiceImpl implements BookingService {
         booking.setDateUpdated(new Date(System.currentTimeMillis()));
         System.out.println("Booking:"+booking);
         String message = getRejectMessage(booking, "Booking request for %s at %s from %s to %s was rejected");
-        twilioService.sendBookingNotification(booking.getProperty().getHost().getUser().getPhoneNumber(), message,booking.getGuest().getPhoneNumber());
         bookingRepository.save(booking);
+        try{
+            twilioService.sendBookingNotification(booking.getProperty().getHost().getUser().getPhoneNumber(), message,booking.getGuest().getPhoneNumber());
+
+        }catch (Exception exception){
+            System.out.println(exception.getMessage());
+        }
         return  "Success";
     }
 
@@ -203,9 +213,16 @@ public class BookingServiceImpl implements BookingService {
         booking.setProperty(property);
         booking.setPrice(BigDecimal.valueOf(request.getPrice()));
         Booking bookingEntity = bookingRepository.save(booking);
+        BookingResponseDto response;
         String message = String.format("Booking request from %s for %s from %s ", user.getUsername(),property.getTitle(),booking.getStartDate());
-        twilioService.sendBookingNotification(property.getHost().getUser().getPhoneNumber(),message,booking.getGuest().getPhoneNumber());
-        return null;
+        try{
+            twilioService.sendBookingNotification(property.getHost().getUser().getPhoneNumber(),message,booking.getGuest().getPhoneNumber());
+        }
+        catch (Exception ex){
+            System.out.println(ex.getMessage());
+        }
+        response= BookingResponseDto.builder().bookingId(bookingEntity.getId()).propertyName(bookingEntity.getProperty().getTitle()).build();
+        return response;
     }
 
     @Override
@@ -240,8 +257,18 @@ public class BookingServiceImpl implements BookingService {
         booking.setPrice(BigDecimal.valueOf(request.getPrice()));
         Booking bookingEntity = bookingRepository.save(booking);
         String message = String.format("Booking request for %s at %s from %s to %s", bookingEntity.getGuest().getUsername(),booking.getRoom().getRoomTitle(),booking.getStartDate(),booking.getEndDate());
-        twilioService.sendBookingNotification(property.getHost().getUser().getPhoneNumber(),message,booking.getGuest().getPhoneNumber());
-        return BookingResponseDto.builder().bookingId(bookingEntity.getId()).propertyName(bookingEntity.getProperty().getTitle()).build();
+        BookingResponseDto bookingResponseDto;
+
+        try{
+            twilioService.sendBookingNotification(property.getHost().getUser().getPhoneNumber(),message,booking.getGuest().getPhoneNumber());
+        }
+        catch(Exception exception){
+            System.out.println(exception.getMessage());
+        }
+        finally {
+            bookingResponseDto= BookingResponseDto.builder().bookingId(bookingEntity.getId()).propertyName(bookingEntity.getProperty().getTitle()).build();
+        }
+        return bookingResponseDto;
     }
 
     @Override
