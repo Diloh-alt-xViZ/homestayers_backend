@@ -39,9 +39,9 @@ public class Room {
     private String description;
     @OneToMany(cascade = CascadeType.ALL,orphanRemoval = true)
     private List<Photo> photos;
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany()
     private List<Amenity> amenities;
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany()
     private List<Services> services;
     @OneToMany(cascade = CascadeType.ALL,orphanRemoval = true)
     private List<Review> reviews;
@@ -50,7 +50,7 @@ public class Room {
     @OneToOne(cascade = CascadeType.ALL)
     private Price price;
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany()
     private List<RoomAttachment> roomAttachments;
 
 }
