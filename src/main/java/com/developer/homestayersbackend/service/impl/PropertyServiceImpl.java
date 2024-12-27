@@ -611,9 +611,21 @@ public class PropertyServiceImpl implements PropertyService {
 
     }
 
+
     @Override
-    public Room deleteRoom(RoomRequest room) {
-        return null;
+    public String deleteRoom(Long id) {
+        Room room = roomRepository.findById(id).orElseThrow(RoomNotFoundException::new);
+
+        roomRepository.delete(room);
+        return "Delete Success";
+    }
+
+    @Override
+    public String deleteAllByIds(List<Long> ids) {
+        List<Room> rooms = roomRepository.findAllByIdIn(ids);
+
+        roomRepository.deleteAll(rooms);
+        return "Delete Success";
     }
 
     @Override
@@ -1030,17 +1042,6 @@ public class PropertyServiceImpl implements PropertyService {
     @Override
     public PropertyResponseDto getProperty(Long propertyId) {
         Property property = propertyRepository.findById(propertyId).orElseThrow(PropertyNotFoundException::new);
-        Hibernate.initialize(property.getHost());
-        Hibernate.initialize(property.getLocation());
-        Hibernate.initialize(property.getRooms());
-        Hibernate.initialize(property.getBookedDates());
-        Hibernate.initialize(property.getPhotos());
-        Hibernate.initialize(property.getAmenities());
-        Hibernate.initialize(property.getServices());
-        Hibernate.initialize(property.getHouseRules());
-        Hibernate.initialize(property.getCustomHouseRules());
-        Hibernate.initialize(property.getPrice());
-        Hibernate.initialize(property.getReviews());
         PropertyResponseDto propertyResponse = new PropertyResponseDto();
             propertyResponse  = setPropertyResponse(property);
             return propertyResponse;
@@ -1493,9 +1494,8 @@ public class PropertyServiceImpl implements PropertyService {
         roomResponse.setDescription(room.getDescription());
         roomResponse.setRoomType(room.getRoomType().toString());
         if(!room.getPhotos().isEmpty()){
-            List<Photo> photos = new ArrayList<>(room.getPhotos());
             List<PhotoDto> photoDtos = new ArrayList<>();
-            for(Photo photo: photos){
+            for(Photo photo: room.getPhotos()){
                 PhotoDto photoDto = new PhotoDto();
                 if(photo.getUrl()!=null){
                     photoDto.setUri(photo.getUrl());
