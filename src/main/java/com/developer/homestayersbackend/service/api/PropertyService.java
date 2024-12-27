@@ -31,7 +31,7 @@ public interface PropertyService {
     Services updateService(Long serviceId, ServicesRequest request);
     Room createRoom(RoomRequest room);
     Room updateRoom(RoomRequest room, Long roomId);
-    Room deleteRoom(RoomRequest room);
+    String deleteRoom(Long id);
     Pricing createPropertyPricing(Long propertyId, PricingRequest request);
 
     Price createRoomPricing(Long roomId, PricingRequest request);
@@ -93,4 +93,6 @@ public interface PropertyService {
     String deleteProperty(Long propertyId);
 
     List<HostListingDto> getHostListingDto(Long hostId);
+
+    String deleteAllByIds(List<Long> ids);
 }
