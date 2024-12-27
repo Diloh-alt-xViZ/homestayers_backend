@@ -45,7 +45,7 @@ public class Property {
     private Date updatedAt;
     @Enumerated(EnumType.STRING)
     private ServiceStatus status;
-    @OneToMany()
+    @OneToMany(cascade = CascadeType.ALL,orphanRemoval = true)
     private List<Room> rooms;
     @ElementCollection
     @CollectionTable(name = "property_booked_dates", joinColumns = {
@@ -54,7 +54,7 @@ public class Property {
     })
     @Column(name = "booked_date")
     private List<Date> bookedDates;
-    @OneToMany()
+    @OneToMany(cascade = CascadeType.ALL)
     @JoinTable(
             name = "property_photos_join",
             joinColumns = {
@@ -67,21 +67,21 @@ public class Property {
     private List<Photo> photos;
     @Enumerated(EnumType.STRING)
     private ApprovalStatus approvalStatus;
-    @ManyToMany()
+    @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(name = "property_amenities_join",joinColumns = {
             @JoinColumn(name = "property_id")
     },inverseJoinColumns = {
             @JoinColumn(name = "amenity_id")
     })
     private List<Amenity> amenities;
-    @ManyToMany()
+    @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(name = "property_service_join",joinColumns = {
             @JoinColumn(name = "property_id")
     },inverseJoinColumns = {
             @JoinColumn(name = "service_id")
     })
     private List<Services> services;
-    @ManyToMany()
+    @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
             name = "property_house_rules_join"
             ,joinColumns = {
@@ -98,6 +98,7 @@ public class Property {
     private Price price;
     @OneToMany(mappedBy = "property",fetch = FetchType.LAZY,cascade = CascadeType.ALL,orphanRemoval = true)
     private List<Booking> bookings;
+
     @OneToMany(mappedBy = "property")
     private List<Review> reviews;
 
