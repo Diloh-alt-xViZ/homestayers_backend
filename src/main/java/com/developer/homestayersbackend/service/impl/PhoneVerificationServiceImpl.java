@@ -10,6 +10,7 @@ import com.developer.homestayersbackend.repository.PhoneVerificationRepository;
 import com.developer.homestayersbackend.service.CustomPhoneUserService;
 import com.developer.homestayersbackend.service.JwtService;
 import com.developer.homestayersbackend.service.api.PhoneVerificationService;
+import com.developer.homestayersbackend.service.api.SmsService;
 import com.developer.homestayersbackend.service.api.TwilioService;
 import com.developer.homestayersbackend.util.PhoneNumberUtils;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +29,7 @@ public class PhoneVerificationServiceImpl implements PhoneVerificationService {
     private final TwilioService twilioService;
     private final CustomPhoneUserService phoneUserService;
     private final JwtService jwtService;
+    private final SmsService smsService;
 
     @Override
     public AuthenticationResponse verifyPhone(String phone, String verificationCode) {
@@ -67,17 +69,9 @@ public class PhoneVerificationServiceImpl implements PhoneVerificationService {
         System.out.println("Phone:"+phone);
         OtpResponse otpResponse;
         String otp = TwilioServiceImpl.generateOtp();
-        try{
-            otpResponse = twilioService.sendVerificationCode(phone,otp);
-
-        }
-        catch (Exception e){
-            System.out.println(e.getMessage());
-        }
-
-
+        String phoneNumber = PhoneNumberUtils.getPhoneNumber(phone).getFullNumber();
+        otpResponse = smsService.sendVerificationCode(phoneNumber,otp);
         PhoneVerification phoneVerification = new PhoneVerification();
-        System.out.println(phone);
         var verificationCodeForNumberExists = checkVerification(phone);
         System.out.println("verificationCodeForNumberExists: "+verificationCodeForNumberExists);
         if(verificationCodeForNumberExists!=null){
