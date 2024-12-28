@@ -5,6 +5,7 @@ import com.developer.homestayersbackend.entity.*;
 import com.developer.homestayersbackend.exception.*;
 import com.developer.homestayersbackend.repository.*;
 import com.developer.homestayersbackend.service.api.BookingService;
+import com.developer.homestayersbackend.service.api.SmsService;
 import com.developer.homestayersbackend.service.api.TwilioService;
 import com.developer.homestayersbackend.util.ListingType;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,7 @@ import java.math.BigDecimal;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -26,6 +28,7 @@ public class BookingServiceImpl implements BookingService {
     private final HostRepository hostRepository;
     private final RoomRepository roomRepository;
     private final UserProfileRepository userProfileRepository;
+    private final SmsService smsService;
 
 
     @Override
@@ -58,15 +61,11 @@ public class BookingServiceImpl implements BookingService {
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(()->new BookingNotFoundException("Booking not found"));
         User bookingGuest = booking.getGuest();
         String approvalMessage = String.format("Booking request for %s at %s from %s to %s was approved.",bookingGuest.getUsername(),booking.getProperty().getTitle(),booking.getStartDate(),booking.getEndDate());
-        try{
-            twilioService.sendBookingApprovalNotification(bookingGuest.getPhoneNumber(),approvalMessage);
+
+        smsService.sendSms(bookingGuest.getPhoneNumber().getFullNumber(),approvalMessage);
             booking.setBookingStatus(BookingStatus.APPROVED);
             booking.setDateUpdated(new Date(System.currentTimeMillis()));
             bookingRepository.save(booking);
-            }
-        catch(Exception e){
-            return false;
-        }
         return true;
     }
 
@@ -76,15 +75,11 @@ public class BookingServiceImpl implements BookingService {
         User bookingGuest = booking.getGuest();
         String denialMessage  = String.format("Booking request for %s at %s was denied.\n %s", bookingGuest.getUsername(),booking.getProperty().getTitle(),request.getReason());
 
-        try{
-            twilioService.sendBookingDenialNotification (bookingGuest.getPhoneNumber(),denialMessage);
-            booking.setBookingStatus(BookingStatus.REJECTED);
-            booking.setDateUpdated(new Date(System.currentTimeMillis()));
-            bookingRepository.save(booking);
-        }
-        catch(Exception e){
-            return false;
-        }
+        smsService.sendSms(bookingGuest.getPhoneNumber().getFullNumber(),denialMessage);
+        booking.setBookingStatus(BookingStatus.REJECTED);
+        booking.setDateUpdated(new Date(System.currentTimeMillis()));
+        bookingRepository.save(booking);
+
         return true;
     }
 
@@ -110,13 +105,8 @@ public class BookingServiceImpl implements BookingService {
         propertyRepository.flush();
         String message = getRejectMessage(booking, "Booking request for %s at %s from %s to %s was accepted");
         bookingRepository.save(booking);
-        try{
-            twilioService.sendBookingNotification(booking.getProperty().getHost().getUser().getPhoneNumber(), message,booking.getGuest().getPhoneNumber());
-
-        }
-        catch(Exception ex){
-            System.out.println(ex.getMessage());
-        }
+        //smsService.sendSms(booking.getProperty().getHost().getUser().getPhoneNumber().getFullNumber(),message);
+        smsService.sendSms(booking.getGuest().getPhoneNumber().getFullNumber(),message);
         return "Success";
     }
 
@@ -128,12 +118,8 @@ public class BookingServiceImpl implements BookingService {
         System.out.println("Booking:"+booking);
         String message = getRejectMessage(booking, "Booking request for %s at %s from %s to %s was rejected");
         bookingRepository.save(booking);
-        try{
-            twilioService.sendBookingNotification(booking.getProperty().getHost().getUser().getPhoneNumber(), message,booking.getGuest().getPhoneNumber());
-
-        }catch (Exception exception){
-            System.out.println(exception.getMessage());
-        }
+        //smsService.sendSms(booking.getProperty().getHost().getUser().getPhoneNumber().getFullNumber(),message);
+        smsService.sendSms(booking.getGuest().getPhoneNumber().getFullNumber(),message);
         return  "Success";
     }
 
@@ -154,8 +140,9 @@ public class BookingServiceImpl implements BookingService {
         Host host = hostRepository.findById(hostId).orElseThrow(HostNotFoundException::new);
         List<Booking> bookings = bookingRepository.findBookingByHostId(hostId);
         List<ReservationDto> reservations = new ArrayList<>();
+
         if(bookings!=null){
-            for(Booking booking:bookings){
+            /*for(Booking booking:bookings){
                 ReservationDto dto = new ReservationDto();
                 dto.setBookingId(booking.getId());
                 dto.setFromDate(booking.getStartDate().toString());
@@ -169,10 +156,33 @@ public class BookingServiceImpl implements BookingService {
                 dto.setGuestCount(booking.getNumberOfGuests());
                 if(userProfile.getPhoto()!=null){
                 dto.setGuestAvatar(userProfile.getPhoto().getUrl());
-                }
-                reservations.add(dto);
+                }*/
+            reservations.addAll(
+                    bookings.stream()
+                            .map(booking -> {
+                                ReservationDto dto = new ReservationDto();
+                                dto.setBookingId(booking.getId());
+                                dto.setFromDate(booking.getStartDate() != null ? booking.getStartDate().toString() : null);
+                                dto.setToDate(booking.getEndDate() != null ? booking.getEndDate().toString() : null);
+                                dto.setStatus(booking.getBookingStatus() != null ? booking.getBookingStatus().getName() : null);
+                                dto.setPropertyName(booking.getProperty() != null ? booking.getProperty().getTitle() : null);
+
+                                User guest = booking.getGuest();
+                                UserProfile userProfile = guest != null
+                                        ? userProfileRepository.findUserProfileByUserId(guest.getId())
+                                        : null;
+
+                                dto.setGuestName(userProfile != null ? userProfile.getFirstName() : null);
+                                dto.setGuestAvatar(userProfile != null && userProfile.getPhoto() != null
+                                        ? userProfile.getPhoto().getUrl()
+                                        : null);
+                                dto.setGuestCount(booking.getNumberOfGuests());
+
+                                return dto;
+                            })
+                            .toList()
+            );
             }
-        }
         return reservations;
     }
 
