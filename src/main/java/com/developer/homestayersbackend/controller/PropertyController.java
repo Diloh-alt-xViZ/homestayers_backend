@@ -343,6 +343,12 @@ public class PropertyController {
         return ResponseEntity.status(HttpStatus.CREATED).body(propertyService.createRental(request));
     }
 
+    @DeleteMapping("/rooms/{roomId}/delete")
+    public ResponseEntity<String> deleteRoom(@PathVariable("roomId")Long roomId){
+
+        return ResponseEntity.ok(propertyService.deleteRoom(roomId));
+    }
+
     @PreAuthorize("hasAuthority('USER')")
     @PostMapping("/create")
     public ResponseEntity<Property> createProperty(@RequestBody PropertyCreationRequest property) {
@@ -350,6 +356,11 @@ public class PropertyController {
         return ResponseEntity.status(HttpStatus.CREATED).body(propertyService.createProperty(property));
     }
 
+    @DeleteMapping("/rooms/deleteAll")
+    public ResponseEntity<String> deleteAllById(@RequestBody List<Long> ids){
+
+        return ResponseEntity.ok().body(propertyService.deleteAllByIds(ids));
+    }
 
     @PreAuthorize("hasAuthority('USER')")
     @GetMapping("/other/{propertyId}")
