@@ -172,7 +172,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public AuthenticationResponse createNewPhoneUserAndAuthenticate(PhoneUserProfileDetailsDto dto) {
 
-        User dbUser = userRepository.findByUsername(dto.getPhoneNumber()).orElseThrow(UserNotFoundException::new);
+        String phoneNumber = PhoneNumberUtils.getPhoneNumber(dto.getPhoneNumber()).getFullNumber();
+        System.out.println("Phone Number:"+phoneNumber);
+        User dbUser = userRepository.findByUsername(phoneNumber).orElseThrow(UserNotFoundException::new);
 
         UserProfile userProfile = getUserProfile(dto, dbUser);
         userProfileRepository.save(userProfile);
