@@ -4,17 +4,17 @@ import com.developer.homestayersbackend.config.PhoneNumberAuthenticationToken;
 import com.developer.homestayersbackend.dto.PhoneNumber;
 import com.developer.homestayersbackend.entity.Role;
 import com.developer.homestayersbackend.entity.User;
-import com.developer.homestayersbackend.entity.UserProfile;
+import com.developer.homestayersbackend.entity.VerificationStatus;
 import com.developer.homestayersbackend.repository.UserProfileRepository;
 import com.developer.homestayersbackend.repository.UserRepository;
 import com.developer.homestayersbackend.util.PhoneNumberUtils;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.sql.Date;
@@ -25,8 +25,6 @@ import java.util.Optional;
 public class CustomPhoneUserService implements UserDetailsService {
 
     private final UserRepository userRepository;
-    private final UserProfileRepository userProfileRepository;
-
 
     private PhoneNumber parsePhoneNumber(String phoneNumber) {
 
@@ -44,7 +42,7 @@ public class CustomPhoneUserService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String phoneNumber) throws UsernameNotFoundException {
-        PhoneNumber phone = parsePhoneNumber(phoneNumber);
+        PhoneNumber phone = PhoneNumberUtils.getPhoneNumber(phoneNumber);
         System.out.println(phone);
         UserDetails user  = findUserByPhone(phone);
         if(user == null){
@@ -65,18 +63,18 @@ public class CustomPhoneUserService implements UserDetailsService {
 
     private UserDetails findUserByPhone(PhoneNumber phone) {
 
-        Optional<User> dbUser = userRepository.findByUsername(PhoneNumberUtils.formatToE164(phone.getNumber(),phone.getCountryCode()));
+        Optional<User> dbUser = userRepository.findByUsername(phone.getFullNumber());
         System.out.println("DbUser: " + dbUser);
         return dbUser.orElse(null);
     }
 
     private UserDetails createUser(PhoneNumber phoneNumber){
         User user = new User();
-
         user.setPhoneNumber(phoneNumber);
-        user.setUsername(PhoneNumberUtils.formatToE164(phoneNumber.getNumber(), phoneNumber.getCountryCode()));
+        user.setUsername(phoneNumber.getFullNumber());
         user.setDateRegistered(new Date(System.currentTimeMillis()));
         user.setRole(Role.USER);
+        user.setVerificationStatus(VerificationStatus.VERIFIED);
         User dbUser = userRepository.save(user);
         Authentication authentication = new PhoneNumberAuthenticationToken(dbUser.getUsername(),null, user.getAuthorities());
         System.out.println("Principal: "+authentication.getPrincipal());
