@@ -2,6 +2,7 @@ package com.developer.homestayersbackend.service.impl;
 
 import com.developer.homestayersbackend.dto.*;
 import com.developer.homestayersbackend.entity.*;
+import com.developer.homestayersbackend.entity.Currency;
 import com.developer.homestayersbackend.exception.*;
 import com.developer.homestayersbackend.repository.*;
 import com.developer.homestayersbackend.service.api.PropertyService;
@@ -15,10 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.sql.Date;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static java.util.stream.Collectors.toList;
 
@@ -835,10 +833,6 @@ public class PropertyServiceImpl implements PropertyService {
         rental.setRentalType(getRentalTypeFromRequest(dto.getRentalType()));
     }
     private <T extends Property> T getPropertyType(ListingType listingType,Class<T> tClass){
-
-        //TODO: Get the appropriate property typezaees
-        //TODO: CREATE THE APPROPRIATE TYPE
-        //TODO: SET THE CORRECT DETAILS
         Property property =   switch(listingType){
             case RENTAL -> new Rental();
             case HOTEL -> new Hotel();
@@ -980,62 +974,57 @@ public class PropertyServiceImpl implements PropertyService {
             room.setPrice(pricingRepository.save(price));
         }
         if(!roomDto.getRoomPhotos().isEmpty()){
-
-            List<Photo> photos = new ArrayList<>();
-            for(PhotoDto dto: roomDto.getRoomPhotos()){
-                Photo photo = new Photo();
-                if(dto.getUri()!=null){
-                    photo.setUrl(dto.getUri());
-                   photos.add(photoRepository.save(photo));
+            room.setPhotos(roomDto.getRoomPhotos().stream().map(photo->{
+                Photo dbPhoto = new Photo();
+                if(!photo.getUri().isEmpty()){
+                    dbPhoto.setUrl(photo.getUri());
+                    return photoRepository.save(dbPhoto);
                 }
-            }
-            room.setPhotos(photos);
-            //TODO Add Photos
+                else return null;
+            }).filter(Objects::nonNull).toList());
         }
         if(!roomDto.getAttachments().isEmpty()){
-            List<RoomAttachment> roomAttachments = new ArrayList<>();
-            for(AttachmentTypeDto dto :roomDto.getAttachments()){
-                RoomAttachment roomAttachment = new RoomAttachment();
-                AttachmentType attachmentType = getAttachmentTypeFromDto(dto.getName());
-                if (attachmentType != null) {
-                    roomAttachment.setDescription(attachmentType.getDescription());
-                    roomAttachment.setAttachmentType(attachmentType);
-                    roomAttachments.add(roomAttachmentRepository.save(roomAttachment));
-                }
-            }
-            room.setRoomAttachments(roomAttachments);
-            //TODO Add Attachments
+            room.setRoomAttachments(roomDto.getAttachments()
+                    .stream()
+                    .filter(Objects::nonNull)
+                    .map(att->getAttachmentTypeFromDto(att.getName()))
+                            .filter(Objects::nonNull)
+                            .map(type->{
+                                Optional<RoomAttachment> roomAttachment = roomAttachmentRepository.findRoomAttachmentByAttachmentType(type);
+                                if(roomAttachment.isPresent()){
+                                    return roomAttachment.get();
+                                }
+                                else {
+                                    RoomAttachment dbRoomAttachment = new RoomAttachment();
+                                    dbRoomAttachment.setDescription(type.getDescription());
+                                    dbRoomAttachment.setAttachmentType(type);
+                                    return roomAttachmentRepository.save(dbRoomAttachment);
+                                }
+                            })
+        .toList());
         }
         if(!roomDto.getAmenities().isEmpty()){
-            //TODO Add Amenities
-            List<Amenity> roomAmenities = new ArrayList<>();
-            for(String amenity:roomDto.getAmenities()){
-                Optional<Amenity> roomAmenity = amenityRepository.findByName(amenity);
-                roomAmenity.ifPresent(roomAmenities::add);
-            }
-            room.setAmenities(roomAmenities);
+            room.setAmenities(roomDto.getAmenities().stream().filter(Objects::nonNull)
+                    .map(am->{
+                        Optional<Amenity> dbAmenity = amenityRepository.findByName(am);
+                        return dbAmenity.orElse(null);
+                    }).filter(Objects::nonNull).toList());
         }
         if(!roomDto.getServices().isEmpty()){
-            List<Services> roomServices = new ArrayList<>();
-            for(String service : roomDto.getServices()){
-                Optional<Services> roomService = servicesRepository.findByName(service);
-                roomService.ifPresent(roomServices::add);
-            }
-            room.setServices(roomServices);
-            //TODO Add Services
+            room.setServices(roomDto.getServices().stream()
+                    .filter(Objects::nonNull)
+                    .map(serv->{
+                        Optional<Services> dbServices = servicesRepository.findByName(serv);
+                        return dbServices.orElse(null);
+                    }).filter(Objects::nonNull).toList()
+            );
         }
 
         return roomRepository.save(room);
     }
 
     private List<Room> createRooms(List<RoomDto> rooms){
-        List<Room> roomList = new ArrayList<>();
-        for(RoomDto roomDto : rooms){
-            var room = createSingleRoom(roomDto);
-            roomList.add(room);
-        }
-
-        return roomList;
+        return rooms.stream().filter(Objects::nonNull).map(this::createSingleRoom).toList();
     }
 
     @Transactional
