@@ -2,11 +2,15 @@ package com.developer.homestayersbackend.service.impl;
 
 import com.developer.homestayersbackend.controller.auth.AuthenticationResponse;
 import com.developer.homestayersbackend.dto.OtpResponse;
+import com.developer.homestayersbackend.dto.PhoneNumberAuth;
 import com.developer.homestayersbackend.entity.PhoneVerification;
 import com.developer.homestayersbackend.entity.User;
+import com.developer.homestayersbackend.entity.VerificationStatus;
+import com.developer.homestayersbackend.exception.UserNotFoundException;
 import com.developer.homestayersbackend.exception.VerificationTokenExpiredException;
 import com.developer.homestayersbackend.exception.VerificationTokenNotFoundException;
 import com.developer.homestayersbackend.repository.PhoneVerificationRepository;
+import com.developer.homestayersbackend.repository.UserRepository;
 import com.developer.homestayersbackend.service.CustomPhoneUserService;
 import com.developer.homestayersbackend.service.JwtService;
 import com.developer.homestayersbackend.service.api.PhoneVerificationService;
@@ -26,10 +30,24 @@ import static com.developer.homestayersbackend.service.impl.UserServiceImpl.getA
 public class PhoneVerificationServiceImpl implements PhoneVerificationService {
 
     private final PhoneVerificationRepository phoneVerificationRepository;
-    private final TwilioService twilioService;
     private final CustomPhoneUserService phoneUserService;
     private final JwtService jwtService;
     private final SmsService smsService;
+    private final UserRepository userRepository;
+
+    @Override
+    public String verifyNewPhone(PhoneNumberAuth authRequest, Long id) {
+        User user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
+        PhoneVerification phoneVerification = phoneVerificationRepository
+                .findPhoneVerificationByPhoneNumberAndVerificationCode(PhoneNumberUtils.getPhoneNumber(authRequest.getPhoneNumber()).getFullNumber(),authRequest.getOtp()).orElseThrow(VerificationTokenNotFoundException::new);
+
+        if(validVerification(phoneVerification)){
+            user.setPhoneNumber(PhoneNumberUtils.getPhoneNumber(phoneVerification.getPhoneNumber()));
+            user.setVerificationStatus(VerificationStatus.VERIFIED);
+            userRepository.save(user);
+        }
+        return "Success";
+    }
 
     @Override
     public AuthenticationResponse verifyPhone(String phone, String verificationCode) {
