@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -131,6 +132,13 @@ public class AuthenticationController {
     }
 
 
+    @PreAuthorize("hasAuthority('USER')")
+    @PostMapping("/phone-number/change-number/verify")
+    public ResponseEntity<String> verifyNewPhone(@RequestBody PhoneNumberAuth authRequest,@AuthenticationPrincipal User user){
+
+        return ResponseEntity.ok(phoneVerificationService.verifyNewPhone(authRequest,user.getId()));
+    }
+
     @GetMapping("/checkTokenValidity")
     public ResponseEntity<String> checkTokenValidity(@AuthenticationPrincipal User user) {
 
@@ -181,6 +189,8 @@ public class AuthenticationController {
 
         return ResponseEntity.ok("hi");
     }
+
+
 
     @PostMapping("/phone-number/request-verification")
     public ResponseEntity<String> phoneNumber(@RequestParam String phoneNumber) {
