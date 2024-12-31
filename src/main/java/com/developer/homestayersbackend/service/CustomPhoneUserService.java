@@ -5,7 +5,6 @@ import com.developer.homestayersbackend.dto.PhoneNumber;
 import com.developer.homestayersbackend.entity.Role;
 import com.developer.homestayersbackend.entity.User;
 import com.developer.homestayersbackend.entity.VerificationStatus;
-import com.developer.homestayersbackend.repository.UserProfileRepository;
 import com.developer.homestayersbackend.repository.UserRepository;
 import com.developer.homestayersbackend.util.PhoneNumberUtils;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +13,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.sql.Date;
@@ -81,5 +79,18 @@ public class CustomPhoneUserService implements UserDetailsService {
         System.out.println(authentication);
         SecurityContextHolder.getContext().setAuthentication(authentication);
         return dbUser;
+    }
+
+    public String checkRegistrationStatus(String phoneNumber) {
+        PhoneNumber phone = PhoneNumberUtils.getPhoneNumber(phoneNumber);
+        User userDetails  = (User) findUserByPhone(phone);
+        if(userDetails!=null){
+            if(userDetails.getVerificationStatus()!=VerificationStatus.VERIFIED){
+                return "Verified";
+            }
+            else return "Not Verified";
+        }
+
+        return "Not Verified";
     }
 }
