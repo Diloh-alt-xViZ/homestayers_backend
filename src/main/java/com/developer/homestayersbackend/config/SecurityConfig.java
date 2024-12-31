@@ -64,6 +64,7 @@ public class SecurityConfig {
                         ,"/api/v1/property/homestay/getTypes"
                         ,"/api/v1/property/rooms/{roomId}/delete"
                         ,"/auth/email/authenticate"
+                        ,"/api/v1/auth/phone-number/login"
                         ,"/api/v1/property/sharedSpaces"
                         ,"/api/v1/property/rooms/deleteAll"
                         ,"/api/v1/property/attachmentTypes"
