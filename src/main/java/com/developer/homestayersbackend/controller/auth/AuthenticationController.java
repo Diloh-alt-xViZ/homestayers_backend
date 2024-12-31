@@ -213,6 +213,12 @@ public class AuthenticationController {
         return ResponseEntity.ok(customPhoneUserService.checkRegistrationStatus(phoneNumber));
     }
 
+    @PostMapping("/phone-number/login")
+    public ResponseEntity<AuthenticationResponse> loginPhoneUser(@RequestBody PhoneLoginRequest req){
+
+        return ResponseEntity.ok(userService.loginPhoneUser(req));
+    }
+
 
     @PostMapping("/phone-number/verifyPhone")
     public ResponseEntity<AuthenticationResponse> verifyPhone(@RequestBody PhoneNumberAuth phoneNumberAuth) {
