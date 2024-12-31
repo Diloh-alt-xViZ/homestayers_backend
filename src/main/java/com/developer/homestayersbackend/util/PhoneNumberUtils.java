@@ -11,10 +11,15 @@ import java.util.regex.Pattern;
 @Data
 public class PhoneNumberUtils {
     private static final String defaultCountryCode = "+263";
-    private static final String PHONE_NUMBER_REGEX = "^(0\\d{9}|\\+(\\d{1,3})(\\d{9}))$";
+    private static final String PHONE_NUMBER_REGEX = "^\\+?(\\d{1,3})[-.\\s]?(\\(?\\d{1,4}\\)?)[-.\\s]?\\d{1,4}([-.\\s]?\\d{1,4}){0,3}$";
     public static PhoneNumber getPhoneNumber(String phoneNumber) {
         PhoneNumber phoneNumberObj = new PhoneNumber();
+        System.out.println("Phone Number:"+phoneNumber);
+        if (!phoneNumber.startsWith("0") && !phoneNumber.startsWith("+")) {
+            phoneNumber = "+" + phoneNumber;
+        }
         phoneNumber = phoneNumber.replaceAll("\\s+", "");
+        System.out.println("Phone Number:"+phoneNumber);
         Pattern pattern = Pattern.compile(PHONE_NUMBER_REGEX);
         Matcher matcher = pattern.matcher(phoneNumber);
 
