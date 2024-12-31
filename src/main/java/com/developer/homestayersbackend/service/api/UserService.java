@@ -49,4 +49,6 @@ public interface UserService {
     AuthenticationResponse createNewPhoneUserAndAuthenticate(PhoneUserProfileDetailsDto dto);
 
     boolean checkUserDetails(Long id);
+
+    AuthenticationResponse loginPhoneUser(PhoneLoginRequest req);
 }
