@@ -5,6 +5,7 @@ import com.developer.homestayersbackend.dto.*;
 import com.developer.homestayersbackend.entity.PhoneVerification;
 import com.developer.homestayersbackend.entity.User;
 import com.developer.homestayersbackend.exception.UserNotFoundException;
+import com.developer.homestayersbackend.service.CustomPhoneUserService;
 import com.developer.homestayersbackend.service.api.PhoneNumberAuthService;
 import com.developer.homestayersbackend.service.api.PhoneVerificationService;
 import com.developer.homestayersbackend.service.api.UserService;
@@ -30,6 +31,7 @@ public class AuthenticationController {
     private final PhoneVerificationService phoneVerificationService;
     private final UserService userService;
     private final PhoneNumberAuthService authService;
+    private final CustomPhoneUserService customPhoneUserService;
     private Map<String,String> otpMap = new ConcurrentHashMap<>();
 //
 //    @PreAuthorize("hasAnyAuthority('USER','ADMIN')")
@@ -206,6 +208,10 @@ public class AuthenticationController {
             return ResponseEntity.ok(response);
     }
 
+    @PostMapping("/phone-number/attemptLogin")
+    public ResponseEntity<String> attemptPhoneLogin(@RequestParam String phoneNumber){
+        return ResponseEntity.ok(customPhoneUserService.checkRegistrationStatus(phoneNumber));
+    }
 
 
     @PostMapping("/phone-number/verifyPhone")
