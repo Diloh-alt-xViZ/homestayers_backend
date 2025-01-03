@@ -20,7 +20,6 @@ public class Payments {
     private Long id;
     private Date dateOfPayment;
     private Date dateUpdated;
-    private String phoneNumber;
     @Enumerated(EnumType.STRING)
     private PaymentStatus paymentStatus;
     private BigDecimal amount;
