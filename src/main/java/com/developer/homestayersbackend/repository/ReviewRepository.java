@@ -1,7 +1,6 @@
 package com.developer.homestayersbackend.repository;
 
 import com.developer.homestayersbackend.entity.Review;
-import com.developer.homestayersbackend.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -13,4 +12,7 @@ import java.util.List;
 public interface ReviewRepository extends JpaRepository<Review, Long> {
     List<Review> findReviewsByPropertyId(Long propertyId);
     List<Review> findReviewsByUserId(Long userId);
+
+    @Query("Select r from Review r where r.property.host.id = :hostId")
+    List<Review> findReviewsByHostId(@Param("hostId") Long hostId);
 }
