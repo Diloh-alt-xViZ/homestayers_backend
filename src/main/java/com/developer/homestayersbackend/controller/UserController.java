@@ -1,13 +1,16 @@
 package com.developer.homestayersbackend.controller;
 
-import com.developer.homestayersbackend.dto.*;
+import com.developer.homestayersbackend.dto.OtpResponse;
+import com.developer.homestayersbackend.dto.PhotoDto;
+import com.developer.homestayersbackend.dto.UserDto;
+import com.developer.homestayersbackend.dto.UserProfileDto;
 import com.developer.homestayersbackend.entity.User;
 import com.developer.homestayersbackend.entity.UserProfile;
 import com.developer.homestayersbackend.repository.UserRepository;
 import com.developer.homestayersbackend.service.api.PhoneNumberAuthService;
+import com.developer.homestayersbackend.service.api.PhotoService;
 import com.developer.homestayersbackend.service.api.UserProfileService;
 import com.developer.homestayersbackend.service.api.UserService;
-import com.developer.homestayersbackend.util.PhoneNumberUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -28,13 +31,20 @@ public class UserController {
     private final UserProfileService userProfileService;
     private final PhoneNumberAuthService authService;
     private Map<String,String> otpStorage = new ConcurrentHashMap<>();
-    private UserRepository userRepository;
-
+    private final UserRepository userRepository;
+    private final PhotoService photoService;
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping
     public ResponseEntity<List<User>> getAllUsers() {
 
         return ResponseEntity.ok(userService.getAllUsers());
+    }
+
+    @PreAuthorize("hasAuthority('USER')")
+    @PostMapping("/{userId}/profilePicture")
+    public ResponseEntity<PhotoDto> addUserProfilePicture(@RequestBody PhotoDto dto,@PathVariable Long userId){
+
+        return ResponseEntity.ok(photoService.addUserProfilePhoto(dto,userId));
     }
 
     @PreAuthorize("hasAuthority('USER')")
