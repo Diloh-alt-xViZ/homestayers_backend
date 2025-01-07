@@ -1,8 +1,8 @@
 package com.developer.homestayersbackend.service.impl;
 
 import com.developer.homestayersbackend.dto.*;
-import com.developer.homestayersbackend.entity.*;
 import com.developer.homestayersbackend.entity.Currency;
+import com.developer.homestayersbackend.entity.*;
 import com.developer.homestayersbackend.exception.*;
 import com.developer.homestayersbackend.repository.*;
 import com.developer.homestayersbackend.service.api.PropertyService;
@@ -226,6 +226,43 @@ public class PropertyServiceImpl implements PropertyService {
         return roomTypesList;
     }
 
+    private static HostListingDto getHostListingDto(Property prop) {
+        HostListingDto listing = new HostListingDto();
+        listing.setId(prop.getId());
+        listing.setTitle(prop.getTitle());
+        listing.setStartDate(prop.getCreatedAt());
+        String approvalStatus = switch (prop.getApprovalStatus()){
+
+            case PENDING -> "Pending";
+            case APPROVED -> "Approved";
+            case REJECTED -> "Rejected";
+        };
+
+        if(prop.getLocation()!=null){
+            listing.setLocation(prop.getLocation());
+        }
+        listing.setApprovalStatus(approvalStatus);
+        String listingType = switch(prop.getListingType()){
+
+            case BED_AND_BREAKFAST -> "Bed and Breakfast";
+            case LODGE -> "Lodge";
+            case HOTEL -> "Hotel";
+            case HOME_STAYERS_EXPERIENCE -> "Homestay";
+            case RENTAL -> "Rental";
+        };
+        listing.setListingType(listingType);
+        if(prop.getPhotos()!=null){
+            List<PhotoDto> photos = new ArrayList<>();
+            for(Photo photo: prop.getPhotos()){
+                PhotoDto photoDto = new PhotoDto();
+                photoDto.setUri(photo.getUrl());
+                photos.add(photoDto);
+            }
+            listing.setPhotos(photos);
+        }
+        return listing;
+    }
+
     @Transactional
     @Override
     public HomeStayResponseDto getHomeStayProperty(Long propertyId) {
@@ -271,43 +308,6 @@ public class PropertyServiceImpl implements PropertyService {
         List<HostListingDto> dto = new ArrayList<>(properties.stream().map(PropertyServiceImpl::getHostListingDto).peek(System.out::println).toList());
         System.out.println("My Listings:"+ dto);
         return dto;
-    }
-
-    private static HostListingDto getHostListingDto(Property prop) {
-        HostListingDto listing = new HostListingDto();
-        listing.setId(prop.getId());
-        listing.setTitle(prop.getTitle());
-        listing.setStartDate(prop.getCreatedAt());
-        String approvalStatus = switch (prop.getApprovalStatus()){
-
-            case PENDING -> "Pending";
-            case APPROVED -> "Approved";
-            case REJECTED -> "Rejected";
-        };
-
-        if(prop.getLocation()!=null){
-            listing.setLocation(prop.getLocation());
-        }
-        listing.setApprovalStatus(approvalStatus);
-        String listingType = switch(prop.getListingType()){
-
-            case BED_AND_BREAKFAST -> "Bed and Breakfast";
-            case LODGE -> "Lodge";
-            case HOTEL -> "Hotel";
-            case HOME_STAYERS_EXPERIENCE -> "Homestay";
-            case RENTAL -> "Rental";
-        };
-        listing.setListingType(listingType);
-        if(prop.getPhotos()!=null){
-            List<PhotoDto> photos = new ArrayList<>();
-            for(Photo photo: prop.getPhotos()){
-                PhotoDto photoDto = new PhotoDto();
-                photoDto.setUri(photo.getUrl());
-                photos.add(photoDto);
-            }
-            listing.setPhotos(photos);
-        }
-        return listing;
     }
 
     @Override
@@ -608,7 +608,6 @@ public class PropertyServiceImpl implements PropertyService {
         else throw new RoomNotFoundException();
 
     }
-
 
     @Override
     public String deleteRoom(Long id) {
@@ -1850,12 +1849,7 @@ public class PropertyServiceImpl implements PropertyService {
 
     @Override
     public Property createProperty(PropertyCreationRequest request) {
-        Optional<Host> host = hostRepository.findById(request.getHostId());
-
-        if(host.isEmpty()){
-            throw new HostNotFoundException();
-        }
-
+        Host host = hostRepository.findById(request.getHostId()).orElseThrow(HostNotFoundException::new);
         var property = switch (request.getListingType()){
             case "Hotel"-> getPropertyType(ListingType.HOTEL, Hotel.class);
             case "Lodge"->getPropertyType(ListingType.LODGE, Lodge.class);
@@ -1864,13 +1858,11 @@ public class PropertyServiceImpl implements PropertyService {
         };
         ListingType listingType = getListingTypeFromRequest(request.getListingType());
         property.setListingType(listingType);
-        List<RoomDto> rooms = request.getRooms();
-        List<Room> roomsToSave=new ArrayList<>();
-        if(!rooms.isEmpty()){
-             roomsToSave = createRooms(rooms);
+        if(!request.getRooms().isEmpty()){
+            List<Room> roomsToSave = request.getRooms().stream().map(this::createSingleRoom).toList();
+            property.setRooms(roomsToSave);
         }
-        property.setRooms(roomsToSave);
-        property.setHost(host.get());
+        property.setHost(host);
         property.setGettingAroundDetails(request.getGettingAround());
         property.setNeighbourhoodDetails(request.getNeighbourhoodDetails());
         property.setTitle(request.getTitle());
