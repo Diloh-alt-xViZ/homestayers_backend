@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import java.sql.Date;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -183,6 +184,12 @@ public class UserServiceImpl implements UserService {
 
         UserProfile userProfile = getUserProfile(dto, dbUser);
         userProfileRepository.save(userProfile);
+        if(!Objects.equals(dto.getPassword(), dto.getConfirmPassword())){
+            throw new IllegalArgumentException("Invalid username or password");
+        }
+        else {
+            dbUser.setPassword(passwordEncoder.encode(dto.getPassword()));
+        }
         User savedUser = userRepository.save(dbUser);
         String token  = jwtService.generateToken(savedUser);
         String refreshToken = jwtService.generateRefreshToken(savedUser);
@@ -411,6 +418,16 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getUserById(Long id) {
         return userRepository.findById(id).orElseThrow(UserNotFoundException::new);
+    }
+
+
+    @Override
+    public boolean checkPhoneProfile(String phoneNumber) {
+        User user = userRepository.findByUsername(PhoneNumberUtils.getPhoneNumber(phoneNumber).getFullNumber()).orElseThrow(UserNotFoundException::new);
+        System.out.println("Found the Phone User");
+        UserProfile userProfile = userProfileRepository.findUserProfileByUserId(user.getId());
+        return userProfile != null;
+
     }
 
     @Override
