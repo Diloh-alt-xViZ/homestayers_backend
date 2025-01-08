@@ -59,6 +59,7 @@ public class SecurityConfig {
                 .authorizeRequests()
                 .requestMatchers("/api/v1/auth/email/login",
                         "/api/v1/amenities/addAmenities"
+                        ,"/api/v1/users/phone/checkUserDetails/{phoneNumber}"
                         ,"/api/v1/amenities/category/addCategories"
                         ,"api/v1/auth/phone-number/attemptLogin"
                         ,"/api/v1/property/homestay/getTypes"
