@@ -85,10 +85,11 @@ public class CustomPhoneUserService implements UserDetailsService {
         PhoneNumber phone = PhoneNumberUtils.getPhoneNumber(phoneNumber);
         User userDetails  = (User) findUserByPhone(phone);
         if(userDetails!=null){
+            System.out.println("Found user with phone number");
             if(userDetails.getVerificationStatus()!=VerificationStatus.VERIFIED){
-                return "Verified";
+                return "Not Verified";
             }
-            else return "Not Verified";
+            else return "Verified";
         }
 
         return "Not Verified";
