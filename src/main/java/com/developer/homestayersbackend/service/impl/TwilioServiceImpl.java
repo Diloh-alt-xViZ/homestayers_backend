@@ -33,6 +33,13 @@ public class TwilioServiceImpl implements TwilioService {
         return user.isPresent();
     }
 
+    public static String generateOtp() {
+        Random random = new Random();
+        int otp = 100000 + random.nextInt(900000);
+
+        return String.valueOf(otp);
+    }
+
     @Override
     public OtpResponse sendVerificationCode(String phoneNumber, String otp) throws TwilioException {
 
@@ -44,20 +51,15 @@ public class TwilioServiceImpl implements TwilioService {
         System.out.println("Verification Message Sent");
         return new OtpResponse(otp,formattedNumber);
     }
-    public static String generateOtp() {
-        Random random = new Random();
-        int otp = 100000 + random.nextInt(900000);
-
-        return String.valueOf(otp);
-    }
 
     @Override
     public void sendBookingNotification(PhoneNumber hostPhoneNumber, String message, PhoneNumber guestPhoneNumber) throws Exception {
 
+        String guestMessage = "Your booking request was sent successfully";
         com.twilio.type.PhoneNumber guestPhone = new com.twilio.type.PhoneNumber(guestPhoneNumber.getFullNumber());
         com.twilio.type.PhoneNumber hostPhone = new com.twilio.type.PhoneNumber(hostPhoneNumber.getFullNumber());
         Message.creator(hostPhone,"MG3b661a52e30568105397c695acc770d8",message).create();
-        Message.creator(guestPhone,"MG3b661a52e30568105397c695acc770d8",message).create();
+        Message.creator(guestPhone,"MG3b661a52e30568105397c695acc770d8",guestMessage).create();
     }
 
     @Override
