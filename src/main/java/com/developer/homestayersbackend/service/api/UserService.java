@@ -51,4 +51,6 @@ public interface UserService {
     boolean checkUserDetails(Long id);
 
     AuthenticationResponse loginPhoneUser(PhoneLoginRequest req);
+
+    boolean checkPhoneProfile(String phoneNumber);
 }
