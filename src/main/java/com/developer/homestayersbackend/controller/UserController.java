@@ -47,6 +47,18 @@ public class UserController {
         return ResponseEntity.ok(photoService.addUserProfilePhoto(dto,userId));
     }
 
+
+    @GetMapping("/phone/checkUserDetails/{phoneNumber}")
+    public ResponseEntity<String> checkPhoneUserDetails(@PathVariable String phoneNumber){
+        boolean userPresent = userService.checkPhoneProfile(phoneNumber);
+        if(userPresent){
+            return ResponseEntity.ok("Present");
+        }
+        else {
+            return ResponseEntity.ok("Absent");
+        }
+    }
+
     @PreAuthorize("hasAuthority('USER')")
     @GetMapping("/checkUserDetails")
     public ResponseEntity<String> checkUserDetails(@AuthenticationPrincipal User user){
