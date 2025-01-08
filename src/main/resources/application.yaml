@@ -52,12 +52,13 @@ spring:
     secretKey: XYiHIC8C5TsOQLK8EnjbGNo5GpVuyPjaXYiHIC8C5TsOQLK8EnjbGNo5GpVuyPja
     name: homestayersbackend
   datasource:
-    username: postgres.kmtrtjnbmayaclorroci
-    password: c87bqIlAFe2PmEJN
-    driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://aws-0-eu-central-1.pooler.supabase.com:6543/postgres?prepareThreshold=0
+      username: postgres.kmtrtjnbmayaclorroci
+      password: c87bqIlAFe2PmEJN
+      driver-class-name: org.postgresql.Driver
+      url: jdbc:postgresql://aws-0-eu-central-1.pooler.supabase.com:6543/postgres?prepareThreshold=0
   jpa:
     hibernate:
+
       ddl-auto: update
     show-sql: true
     properties:
@@ -67,7 +68,7 @@ spring:
     database-platform:  org.hibernate.dialect.PostgreSQLDialect
 twilio:
   account:
-      authToken: 904781ceab8f697ee24cc3ccf9c787df
+      authToken: 17727e64400f70c71370ae25181ee2da
       phoneNumber: +13192507714
       verificationServiceSID: VAf2fdf16a2919c3e3fc3b099e36d1a1ea
       sid: AC01981d6d0df613ccfe716d9ccaed85ca
