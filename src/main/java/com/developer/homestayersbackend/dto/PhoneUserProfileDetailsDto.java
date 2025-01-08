@@ -19,4 +19,6 @@ public class PhoneUserProfileDetailsDto {
     private Date dob;
     private String gender;
     private String phoneNumber;
+    private String password;
+    private String confirmPassword;
 }
