@@ -15,7 +15,6 @@ import java.math.BigDecimal;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -56,6 +55,17 @@ public class BookingServiceImpl implements BookingService {
 
     }
 
+    private static String getRejectMessage(Booking booking, String format) {
+        Room room = booking.getRoom();
+        String message = "";
+        if (room != null) {
+            message = String.format(format, booking.getGuest().getUsername(), room.getRoomTitle(), booking.getStartDate(), booking.getEndDate());
+        } else {
+            message = String.format(format, booking.getGuest().getUsername(), booking.getProperty().getTitle(), booking.getStartDate(), booking.getEndDate());
+        }
+        return message;
+    }
+
     @Override
     public boolean approveBooking(Long bookingId) {
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(()->new BookingNotFoundException("Booking not found"));
@@ -82,7 +92,6 @@ public class BookingServiceImpl implements BookingService {
 
         return true;
     }
-
 
     @Override
     public String acceptBooking(Long bookingId) {
@@ -115,23 +124,11 @@ public class BookingServiceImpl implements BookingService {
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(BookingNotFoundException::new);
         booking.setBookingStatus(BookingStatus.REJECTED);
         booking.setDateUpdated(new Date(System.currentTimeMillis()));
-        System.out.println("Booking:"+booking);
         String message = getRejectMessage(booking, "Booking request for %s at %s from %s to %s was rejected");
         bookingRepository.save(booking);
         //smsService.sendSms(booking.getProperty().getHost().getUser().getPhoneNumber().getFullNumber(),message);
-        smsService.sendSms(booking.getGuest().getPhoneNumber().getFullNumber(),message);
+        smsService.sendSmsMessage(booking.getGuest().getPhoneNumber().getFullNumber(),message);
         return  "Success";
-    }
-
-    private static String getRejectMessage(Booking booking, String format) {
-        Room room = booking.getRoom();
-        String message = "";
-        if (room != null) {
-            message = String.format(format, booking.getGuest().getUsername(), room.getRoomTitle(), booking.getStartDate(), booking.getEndDate());
-        } else {
-            message = String.format(format, booking.getGuest().getUsername(), booking.getProperty().getTitle(), booking.getStartDate(), booking.getEndDate());
-        }
-        return message;
     }
 
     @Override
@@ -266,7 +263,7 @@ public class BookingServiceImpl implements BookingService {
         booking.setNumberOfGuests(request.getNumberOfGuests());
         booking.setPrice(BigDecimal.valueOf(request.getPrice()));
         Booking bookingEntity = bookingRepository.save(booking);
-        String message = String.format("Booking request for %s at %s from %s to %s", bookingEntity.getGuest().getUsername(),booking.getRoom().getRoomTitle(),booking.getStartDate(),booking.getEndDate());
+        String message = String.format("Booking request by %s at %s for %s guests from %s to %s", bookingEntity.getGuest().getUsername(),booking.getRoom().getRoomTitle(),booking.getNumberOfGuests(),booking.getStartDate(),booking.getEndDate());
         BookingResponseDto bookingResponseDto;
 
         try{
